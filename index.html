@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор ГСМ и ЗП Курьера</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .row > div {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .gsm-rate-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .radio-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--accent-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .radio-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .day-card {
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .btn-add {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #fff;
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .result-table th, .result-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-table th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .result-table tr:last-child {
+            background: #f9f9f9;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .formula-text {
+            font-family: 'Courier New', Courier, monospace;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .rounded-val {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Расчет курьера</h1>
+
+    <!-- Переключатель ставки ГСМ -->
+    <div class="gsm-rate-selector">
+        <div id="rate-754" class="radio-btn active" onclick="setGsmRate(7.54)">ГСМ 7.54</div>
+        <div id="rate-87" class="radio-btn" onclick="setGsmRate(8.7)">ГСМ 8.7</div>
+    </div>
+
+    <!-- Блок ГСМ -->
+    <div class="section">
+        <div class="section-title">Категория: ГСМ</div>
+        <div class="input-group">
+            <label>Путь в км</label>
+            <input type="number" id="baseDistance" value="124.56" step="0.01" oninput="calculate()">
+        </div>
+        
+        <label class="toggle-group">
+            <input type="checkbox" id="hasDelivery" checked onchange="toggleDelivery()"> Был ли развоз?
+        </label>
+
+        <div id="deliveryFields" class="row">
+            <div class="input-group">
+                <label>Путь развоза (км)</label>
+                <input type="number" id="deliveryDistance" value="18.16" step="0.01" oninput="calculate()">
+            </div>
+            <div class="input-group">
+                <label>Адресов в развозе</label>
+                <input type="number" id="addressCount" value="4" oninput="calculate()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок ЗП -->
+    <div class="section">
+        <div class="section-title">
+            <span>Категория: ЗП</span>
+            <label class="toggle-group" style="font-size: 0.7em; margin-bottom: 0;">
+                <input type="checkbox" id="hasSalary" checked onchange="toggleSalary()"> Рассчитывать ЗП?
+            </label>
+        </div>
+        
+        <div id="salaryContainer">
+            <div id="daysList"></div>
+            <button class="btn-add" onclick="addDay()">+ Добавить рабочий день</button>
+        </div>
+    </div>
+
+    <!-- Блок Корректировок -->
+    <div class="section">
+        <div class="section-title">Корректировки (премии и штрафы)</div>
+        <div class="row">
+            <div>
+                <label class="toggle-group">
+                    <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка к ЗП
+                </label>
+                <div class="input-group" id="bonusField" style="display: none;">
+                    <label>Сумма прибавки</label>
+                    <input type="number" id="bonusValue" value="1000" min="0" oninput="calculate()">
+                </div>
+            </div>
+            <div>
+                <label class="toggle-group">
+                    <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание из ЗП
+                </label>
+                <div class="input-group" id="penaltyField" style="display: none;">
+                    <label>Сумма вычитания</label>
+                    <input type="number" id="penaltyValue" value="500" min="0" oninput="calculate()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица результатов -->
+    <table class="result-table" id="resultTable">
+        <thead>
+            <tr>
+                <th>Тип</th>
+                <th>Расчет (формула)</th>
+                <th>Итог</th>
+            </tr>
+        </thead>
+        <tbody id="resultBody">
+            <!-- Сюда вставится расчет -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let gsmRate = 7.54;
+    let zpDays = [
+        { id: 1, hours: 10, minutes: 0, orders: 9 },
+        { id: 2, hours: 13, minutes: 30, orders: 11 }
+    ];
+
+    function setGsmRate(rate) {
+        gsmRate = rate;
+        document.getElementById('rate-754').classList.toggle('active', rate === 7.54);
+        document.getElementById('rate-87').classList.toggle('active', rate === 8.7);
+        calculate();
+    }
+
+    function toggleDelivery() {
+        const hasDelivery = document.getElementById('hasDelivery').checked;
+        document.getElementById('deliveryFields').style.display = hasDelivery ? 'flex' : 'none';
+        calculate();
+    }
+
+    function toggleSalary() {
+        const hasSalary = document.getElementById('hasSalary').checked;
+        document.getElementById('salaryContainer').style.display = hasSalary ? 'block' : 'none';
+        calculate();
+    }
+
+    function toggleBonus() {
+        const hasBonus = document.getElementById('hasBonus').checked;
+        document.getElementById('bonusField').style.display = hasBonus ? 'block' : 'none';
+        calculate();
+    }
+
+    function togglePenalty() {
+        const hasPenalty = document.getElementById('hasPenalty').checked;
+        document.getElementById('penaltyField').style.display = hasPenalty ? 'block' : 'none';
+        calculate();
+    }
+
+    function addDay() {
+        const newId = zpDays.length > 0 ? Math.max(...zpDays.map(d => d.id)) + 1 : 1;
+        zpDays.push({ id: newId, hours: 0, minutes: 0, orders: 0 });
+        renderDays();
+        calculate();
+    }
+
+    function deleteDay(id) {
+        if (zpDays.length > 1) {
+            zpDays = zpDays.filter(d => d.id !== id);
+            renderDays();
+            calculate();
+        }
+    }
+
+    function updateDayValue(id, field, value) {
+        const day = zpDays.find(d => d.id === id);
+        if (day) {
+            day[field] = parseFloat(value) || 0;
+            calculate();
+        }
+    }
+
+    function renderDays() {
+        const list = document.getElementById('daysList');
+        list.innerHTML = '';
+        zpDays.forEach((day, index) => {
+            const div = document.createElement('div');
+            div.className = 'day-card';
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <strong>День ${index + 1}</strong>
+                    ${zpDays.length > 1 ? `<button class="btn-delete" onclick="deleteDay(${day.id})">Удалить</button>` : ''}
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label>Часы</label>
+                        <input type="number" value="${day.hours}" min="0" oninput="updateDayValue(${day.id}, 'hours', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Минуты</label>
+                        <input type="number" value="${day.minutes}" min="0" max="59" oninput="updateDayValue(${day.id}, 'minutes', this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Заказы</label>
+                        <input type="number" value="${day.orders}" min="0" oninput="updateDayValue(${day.id}, 'orders', this.value)">
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function formatTime(h, m) {
+        return `${h}:${m < 10 ? '0' + m : m}`;
+    }
+
+    function calculate() {
+        const baseDist = parseFloat(document.getElementById('baseDistance').value) || 0;
+        const hasDelivery = document.getElementById('hasDelivery').checked;
+        const delDist = hasDelivery ? (parseFloat(document.getElementById('deliveryDistance').value) || 0) : 0;
+        const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
+        const hasSalary = document.getElementById('hasSalary').checked;
+
+        // Корректировки
+        const hasBonus = document.getElementById('hasBonus').checked;
+        const hasPenalty = document.getElementById('hasPenalty').checked;
+        const bonusVal = hasBonus ? (parseFloat(document.getElementById('bonusValue').value) || 0) : 0;
+        const penaltyVal = hasPenalty ? (parseFloat(document.getElementById('penaltyValue').value) || 0) : 0;
+
+        // ГСМ расчет
+        const gsmRaw = (baseDist + delDist) * gsmRate;
+        const gsmRounded = Math.round(gsmRaw);
+        const gsmFormula = hasDelivery ? 
+            `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
+            `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
+
+        // ЗП расчет
+        let zpRaw = 0;
+        let zpRounded = 0;
+        let zpFormula = "";
+        
+        if (hasSalary) {
+            let totalDecimalHours = 0;
+            let totalOrders = 0;
+            let timeParts = [];
+            let orderParts = [];
+
+            zpDays.forEach(d => {
+                totalDecimalHours += d.hours + (d.minutes / 60);
+                totalOrders += d.orders;
+                timeParts.push(formatTime(d.hours, d.minutes));
+                orderParts.push(d.orders);
+            });
+
+            zpRaw = (totalDecimalHours * 100) + (totalOrders * 120);
+            zpRounded = Math.round(zpRaw);
+            
+            const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
+            const orderStr = orderParts.length > 1 ? `(${orderParts.join(' + ')})` : orderParts[0];
+            
+            zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRaw.toFixed(0)}`;
+        }
+
+        // Итого РКО
+        const addrMoney = addrCount * 120;
+        const baseRko = gsmRounded + zpRounded + addrMoney;
+        const finalRko = baseRko + bonusVal - penaltyVal;
+        
+        let rkoFormula = `${gsmRounded}`;
+        if (hasSalary) {
+            rkoFormula += ` + ${zpRounded}`;
+        }
+        if (hasDelivery) {
+            rkoFormula += ` + (${addrCount} * 120)`;
+        }
+
+        // Если есть корректировки, сначала выводим промежуточный итог
+        if (hasBonus || hasPenalty) {
+            rkoFormula += ` = ${baseRko}`;
+            if (hasBonus) rkoFormula += ` + ${bonusVal}`;
+            if (hasPenalty) rkoFormula += ` - ${penaltyVal}`;
+        }
+
+        rkoFormula += ` = ${finalRko}`;
+
+        // Обновление таблицы
+        const tbody = document.getElementById('resultBody');
+        tbody.innerHTML = `
+            <tr>
+                <td>ГСМ</td>
+                <td class="formula-text">${gsmFormula}</td>
+                <td class="rounded-val">${gsmRounded}</td>
+            </tr>
+        `;
+
+        if (hasSalary) {
+            tbody.innerHTML += `
+                <tr>
+                    <td>ЗП</td>
+                    <td class="formula-text">${zpFormula}</td>
+                    <td class="rounded-val">${zpRounded}</td>
+                </tr>
+            `;
+        }
+
+        tbody.innerHTML += `
+            <tr>
+                <td>ИТОГО в РКО</td>
+                <td class="formula-text">${rkoFormula}</td>
+                <td class="rounded-val">${finalRko}</td>
+            </tr>
+        `;
+    }
+
+    // Инициализация
+    renderDays();
+    calculate();
+</script>
+
+</body>
+</html>
