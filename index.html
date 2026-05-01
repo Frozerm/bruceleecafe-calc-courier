@@ -76,50 +76,7 @@
             box-sizing: border-box;
             font-size: 1em;
             caret-color: #333;
-        }
-
-        /* Стили для ползунков */
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 5px;
-        }
-
-        .slider-val {
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 1.1em;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            margin: 10px 0;
-            -webkit-appearance: none;
-            background: transparent;
-        }
-
-        input[type="range"]:focus {
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: #ddd;
-            border-radius: 3px;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: var(--accent-color);
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -9px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background-color: #fff; /* Для select */
         }
 
         .row {
@@ -381,12 +338,6 @@
         const day = zpDays.find(d => d.id === id);
         if (day) {
             day[field] = parseFloat(value) || 0;
-            // Обновляем текст над ползунком
-            if (field === 'hours') {
-                document.getElementById(`val-hours-${id}`).innerText = day.hours;
-            } else if (field === 'minutes') {
-                document.getElementById(`val-minutes-${id}`).innerText = day.minutes;
-            }
             calculate();
         }
     }
@@ -394,7 +345,21 @@
     function renderDays() {
         const list = document.getElementById('daysList');
         list.innerHTML = '';
+        
         zpDays.forEach((day, index) => {
+            // Генерируем выпадающий список для Часов
+            let hoursOptions = '';
+            for(let i = 0; i <= 16; i++) {
+                hoursOptions += `<option value="${i}" ${day.hours == i ? 'selected' : ''}>${i}</option>`;
+            }
+
+            // Генерируем выпадающий список для Минут
+            let minutesOptions = '';
+            for(let i = 0; i <= 55; i += 5) {
+                let displayMin = i < 10 ? '0' + i : i;
+                minutesOptions += `<option value="${i}" ${day.minutes == i ? 'selected' : ''}>${displayMin}</option>`;
+            }
+
             const div = document.createElement('div');
             div.className = 'day-card';
             div.innerHTML = `
@@ -404,18 +369,16 @@
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <div class="slider-header">
-                            <label style="margin:0;">Часы</label>
-                            <span class="slider-val"><span id="val-hours-${day.id}">${day.hours}</span> ч</span>
-                        </div>
-                        <input type="range" value="${day.hours}" min="0" max="16" step="1" oninput="updateDayValue(${day.id}, 'hours', this.value)">
+                        <label>Часы</label>
+                        <select onchange="updateDayValue(${day.id}, 'hours', this.value)">
+                            ${hoursOptions}
+                        </select>
                     </div>
                     <div class="input-group">
-                        <div class="slider-header">
-                            <label style="margin:0;">Минуты</label>
-                            <span class="slider-val"><span id="val-minutes-${day.id}">${day.minutes}</span> мин</span>
-                        </div>
-                        <input type="range" value="${day.minutes}" min="0" max="55" step="5" oninput="updateDayValue(${day.id}, 'minutes', this.value)">
+                        <label>Минуты</label>
+                        <select onchange="updateDayValue(${day.id}, 'minutes', this.value)">
+                            ${minutesOptions}
+                        </select>
                     </div>
                 </div>
                 <div class="row" style="margin-top: 10px;">
@@ -536,7 +499,8 @@
     document.addEventListener('touchmove', function(e) {
         let touchEndY = e.touches[0].clientY;
         if (touchEndY - touchStartY > 20) {
-            if (document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'range') {
+            // Исключаем select из правила потери фокуса, чтобы свайп не мешал прокрутке внутри самого списка
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') {
                 document.activeElement.blur();
             }
         }
