@@ -292,7 +292,7 @@
         }
 
         .export-import-box {
-            background: rgba(52, 152, 219, 0.1);
+            background: rgba(52, 152, 219, 0.05);
             border: 1px dashed var(--accent-color);
         }
 
@@ -440,21 +440,26 @@
         </tbody>
     </table>
 
-    <!-- Блок Экспорт / Импорт -->
+    <!-- Блок Экспорт / Импорт / Excel -->
     <div class="section export-import-box" style="margin-top: 20px;">
-        <div class="section-title">Передача расчетов (ID Ключ)</div>
+        <div class="section-title">Передача расчетов и Excel</div>
         <div class="row">
             <div class="input-group">
-                <button class="btn-add" onclick="generateExportCode()">Сгенерировать ключ</button>
+                <button class="btn-add" onclick="generateExportCode()">Сгенерировать ID Ключ</button>
                 <textarea id="exportCodeText" rows="3" readonly placeholder="Здесь появится ключ..." style="margin-top:10px; display:none; resize:none;" onclick="this.select()"></textarea>
             </div>
             <div class="input-group">
-                <button class="btn-add" style="background-color: #8e44ad;" onclick="toggleImportMenu()">Ввести ключ</button>
+                <button class="btn-add" style="background-color: #8e44ad;" onclick="toggleImportMenu()">Ввести ID Ключ</button>
                 <div id="importMenu" style="display:none; margin-top:10px;">
-                    <textarea id="importCodeText" rows="3" placeholder="Вставьте ключ сюда..." style="resize:none;"></textarea>
+                    <textarea id="importCodeText" rows="3" placeholder="Вставьте ключ сюда..." style="resize:none; background:var(--input-bg); color:var(--text-color); border:1px solid var(--border-color); width:100%; padding:10px; box-sizing:border-box; border-radius:4px;"></textarea>
                     <button class="btn-add-small" style="margin-top:10px;" onclick="applyImportCode()">Загрузить данные</button>
                 </div>
             </div>
+        </div>
+        <div class="row">
+             <div class="input-group">
+                <button class="btn-add" style="background-color: #16a085;" onclick="handleExcelExport()">Скачать в Excel таблицу</button>
+             </div>
         </div>
     </div>
 
@@ -462,6 +467,19 @@
     <div class="footer">
         Создатель <a href="https://t.me/frozermeow" target="_blank">Frozerm</a><br>
         Сайт создан исключительно для помощи в работе. Никаких коммерческих целей не преследуются.
+    </div>
+</div>
+
+<!-- Модальное окно для выбора дат (появляется перед скачиванием Excel) -->
+<div id="datesModalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+    <div style="background:var(--card-bg); padding:20px; border-radius:var(--border-radius); width:90%; max-width:400px; box-shadow:var(--shadow);">
+        <h3 style="margin-top:0; color:var(--primary-color);">Укажите даты рабочих дней</h3>
+        <p style="font-size:0.9em; color:var(--label-color); margin-bottom:15px;">Это нужно для красивого отображения в Excel (например: 01.05; 02.05)</p>
+        <div id="datesModalInputs" style="max-height: 50vh; overflow-y: auto;"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-add" style="background:#e74c3c; margin-top:0;" onclick="closeDatesModal()">Отмена</button>
+            <button class="btn-add" style="margin-top:0; background:#16a085;" onclick="submitDatesModal()">Скачать</button>
+        </div>
     </div>
 </div>
 
@@ -507,6 +525,20 @@
     let penalties = [{ id: 1, val: 0 }];
 
     const minuteRates = { 0:0, 5:8, 10:17, 15:25, 20:33, 25:42, 30:50, 35:58, 40:67, 45:75, 50:83, 55:92 };
+
+    // УТИЛИТА ОКОНЧАНИЙ (АДРЕСА)
+    function getAddressString(count) {
+        if (count === 0) return "0 адресов";
+        const mod10 = count % 10;
+        const mod100 = count % 100;
+        if (mod10 === 1 && mod100 !== 11) {
+            return count + " адрес";
+        } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+            return count + " адреса";
+        } else {
+            return count + " адресов";
+        }
+    }
 
     function clearExportCode() {
         document.getElementById('exportCodeText').style.display = 'none';
@@ -649,7 +681,7 @@
     function formatTime(h, m) { return `${h}:${m < 10 ? '0' + m : m}`; }
 
     function calculate() {
-        clearExportCode(); // Очищаем старый код при любом изменении
+        clearExportCode(); // Очищаем старый ключ при изменении данных
 
         const name = document.getElementById('courierName').value.trim();
         const dateRaw = document.getElementById('calcDate').value;
@@ -741,7 +773,7 @@
         tbody.innerHTML += `<tr><td>ИТОГО в РКО</td><td class="formula-text">${rkoFormula}</td><td class="rounded-val">${finalRko}</td></tr>`;
     }
 
-    // ИМПОРТ И ЭКСПОРТ
+    // ИМПОРТ И ЭКСПОРТ (КЛЮЧИ)
     function generateExportCode() {
         const state = {
             name: document.getElementById('courierName').value,
@@ -760,7 +792,8 @@
         };
         
         const jsonStr = JSON.stringify(state);
-        const encodedCode = btoa(encodeURIComponent(jsonStr)); // Надежная кодировка для русского языка
+        // Защищаем русские буквы
+        const encodedCode = btoa(encodeURIComponent(jsonStr));
         
         const output = document.getElementById('exportCodeText');
         output.value = encodedCode;
@@ -783,7 +816,6 @@
             const jsonStr = decodeURIComponent(atob(code));
             const state = JSON.parse(jsonStr);
 
-            // Восстановление данных
             document.getElementById('courierName').value = state.name || '';
             document.getElementById('calcDate').value = state.date || '';
 
@@ -811,7 +843,6 @@
             renderPenalties();
 
             calculate();
-
             alert('Расчеты успешно загружены!');
             document.getElementById('importCodeText').value = '';
             toggleImportMenu();
@@ -819,6 +850,165 @@
         } catch (e) {
             alert('Ошибка: Неверный или поврежденный ключ. Проверьте, полностью ли вы его скопировали.');
         }
+    }
+
+    // EXCEL ЭКСПОРТ (Полностью автономный)
+    function escapeXml(unsafe) {
+        if (typeof unsafe !== 'string') unsafe = String(unsafe);
+        return unsafe.replace(/[<>&'"]/g, function (c) {
+            switch (c) {
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '&': return '&amp;';
+                case '\'': return '&apos;';
+                case '"': return '&quot;';
+            }
+        });
+    }
+
+    function handleExcelExport() {
+        // Обязательно обновляем ключ перед сохранением
+        generateExportCode(); 
+        
+        if (document.getElementById('hasSalary').checked && zpDays.length > 0) {
+            const container = document.getElementById('datesModalInputs');
+            container.innerHTML = '';
+            zpDays.forEach((day, i) => {
+                container.innerHTML += `
+                    <div style="margin-bottom:10px;">
+                        <label style="color:var(--text-color);">Дата для Дня ${i+1}</label>
+                        <input type="date" class="modal-date-input" style="width:100%; padding:10px; border-radius:4px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color);">
+                    </div>
+                `;
+            });
+            document.getElementById('datesModalOverlay').style.display = 'flex';
+        } else {
+            generateExcel([]);
+        }
+    }
+
+    function closeDatesModal() {
+        document.getElementById('datesModalOverlay').style.display = 'none';
+    }
+
+    function submitDatesModal() {
+        const inputs = document.querySelectorAll('.modal-date-input');
+        const datesArray = Array.from(inputs).map(inp => {
+            if (inp.value) {
+                const [y, m, d] = inp.value.split('-');
+                return `${d}.${m}`;
+            }
+            return '??.??';
+        });
+        generateExcel(datesArray);
+    }
+
+    function generateExcel(datesArray) {
+        const name = document.getElementById('courierName').value || "-";
+        const baseDist = document.getElementById('baseDistance').value || "0";
+        
+        const hasDelivery = document.getElementById('hasDelivery').checked;
+        const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
+        const addressString = hasDelivery ? getAddressString(addrCount) : "0 адресов";
+        const delDist = hasDelivery ? (document.getElementById('deliveryDistance').value || "0") : "-";
+
+        let gsmFormula = "-", gsmSum = "-";
+        let zpFormula = "-", zpSum = "-";
+        let rkoFormula = "-", rkoSum = "-";
+
+        // Берем готовые формулы прямо из таблицы, чтобы они 100% совпадали с экраном
+        const rows = document.getElementById('resultBody').querySelectorAll('tr');
+        rows.forEach(row => {
+            const type = row.cells[0].innerText;
+            if (type.includes("ГСМ")) {
+                gsmFormula = row.cells[1].innerText;
+                gsmSum = row.cells[2].innerText;
+            } else if (type.includes("ЗП")) {
+                zpFormula = row.cells[1].innerText;
+                zpSum = row.cells[2].innerText;
+            } else if (type.includes("ИТОГО")) {
+                rkoFormula = row.cells[1].innerText;
+                rkoSum = row.cells[2].innerText;
+            }
+        });
+
+        let zpLabel = "ЗП(-)";
+        if (document.getElementById('hasSalary').checked) {
+            if (datesArray.length > 0) {
+                zpLabel = `ЗП (${datesArray.join('; ')})`;
+            } else {
+                zpLabel = "ЗП";
+            }
+        } else {
+            zpFormula = "-";
+            zpSum = "-";
+        }
+
+        const uniqueId = document.getElementById('exportCodeText').value;
+
+        // Собираем XML структуру, которую понимают все версии MS Excel
+        const xml = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Расчет">
+  <Table>
+   <Column ss:Width="200"/>
+   <Column ss:Width="300"/>
+   <Column ss:Width="120"/>
+   <Row>
+    <Cell><Data ss:Type="String">Курьер</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(name)}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Пробег по данным курьера</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(baseDist)}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Пробег (км) персонал</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(addressString)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(delDist)}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell></Cell>
+    <Cell><Data ss:Type="String">Расчёт</Data></Cell>
+    <Cell><Data ss:Type="String">Сумма к выдаче</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">ГСМ</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(gsmFormula)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(gsmSum)}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">${escapeXml(zpLabel)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(zpFormula)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(zpSum)}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">ИТОГО в РКО</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(rkoFormula)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(rkoSum)}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Уникальный ID</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(uniqueId)}</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+        // Добавляем BOM \ufeff чтобы Excel корректно читал русские буквы
+        const blob = new Blob(["\ufeff", xml], { type: "application/vnd.ms-excel" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        // Формируем имя файла из имени курьера и текущей даты
+        a.download = `Расчет_${name !== "-" ? name : 'Курьер'}_${new Date().toISOString().slice(0,10)}.xls`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        closeDatesModal();
     }
 
     // Инициализация
