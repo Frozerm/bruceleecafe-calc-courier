@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор ГСМ и ЗП Курьера</title>
     <style>
-        /* Светлая тема (по умолчанию) */
+        /* Светлая тема */
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -82,7 +82,7 @@
             padding: 8px;
             color: var(--text-color);
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.2s, color 0.3s;
+            transition: transform 0.2s, background-color 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -130,7 +130,7 @@
             color: var(--label-color);
         }
 
-        input[type="number"], input[type="text"], select {
+        input[type="number"], input[type="text"], input[type="date"], select, textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -283,6 +283,19 @@
             font-weight: bold;
         }
 
+        .courier-info-display {
+            background-color: var(--table-row-alt);
+            padding: 15px;
+            font-weight: bold;
+            border-bottom: 1px solid var(--table-border);
+            color: var(--text-color);
+        }
+
+        .export-import-box {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px dashed var(--accent-color);
+        }
+
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -309,13 +322,11 @@
 <div class="container">
     <div class="header-wrapper">
         <h1>Расчет курьера</h1>
-        <!-- Однотонная кнопка переключения темы -->
+        <!-- Переключение темы -->
         <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Переключить тему">
-            <!-- Иконка Луны -->
             <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
-            <!-- Иконка Солнца -->
             <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -328,6 +339,21 @@
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
             </svg>
         </button>
+    </div>
+
+    <!-- Блок данных курьера -->
+    <div class="section">
+        <div class="section-title">Данные сотрудника</div>
+        <div class="row">
+            <div class="input-group">
+                <label>ФИО Курьера</label>
+                <input type="text" id="courierName" placeholder="Иванов И.И." oninput="calculate()">
+            </div>
+            <div class="input-group">
+                <label>Дата расчета</label>
+                <input type="date" id="calcDate" onchange="calculate()">
+            </div>
+        </div>
     </div>
 
     <div class="gsm-rate-selector">
@@ -378,7 +404,6 @@
     <div class="section">
         <div class="section-title">Корректировки (премии и штрафы)</div>
         <div class="row">
-            <!-- Прибавки -->
             <div class="input-group">
                 <label class="toggle-group">
                     <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка
@@ -388,7 +413,6 @@
                     <button class="btn-add-small" onclick="addBonus()">+ Добавить сумму</button>
                 </div>
             </div>
-            <!-- Вычитания -->
             <div class="input-group">
                 <label class="toggle-group">
                     <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание
@@ -403,6 +427,7 @@
 
     <!-- Таблица результатов -->
     <table class="result-table" id="resultTable">
+        <div class="courier-info-display" id="displayCourierInfo" style="display:none; border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
         <thead>
             <tr>
                 <th>Тип</th>
@@ -415,6 +440,24 @@
         </tbody>
     </table>
 
+    <!-- Блок Экспорт / Импорт -->
+    <div class="section export-import-box" style="margin-top: 20px;">
+        <div class="section-title">Передача расчетов (ID Ключ)</div>
+        <div class="row">
+            <div class="input-group">
+                <button class="btn-add" onclick="generateExportCode()">Сгенерировать ключ</button>
+                <textarea id="exportCodeText" rows="3" readonly placeholder="Здесь появится ключ..." style="margin-top:10px; display:none; resize:none;" onclick="this.select()"></textarea>
+            </div>
+            <div class="input-group">
+                <button class="btn-add" style="background-color: #8e44ad;" onclick="toggleImportMenu()">Ввести ключ</button>
+                <div id="importMenu" style="display:none; margin-top:10px;">
+                    <textarea id="importCodeText" rows="3" placeholder="Вставьте ключ сюда..." style="resize:none;"></textarea>
+                    <button class="btn-add-small" style="margin-top:10px;" onclick="applyImportCode()">Загрузить данные</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Футер -->
     <div class="footer">
         Создатель <a href="https://t.me/frozermeow" target="_blank">Frozerm</a><br>
@@ -423,12 +466,11 @@
 </div>
 
 <script>
-    // ЛОГИКА ТЕМНОЙ ТЕМЫ С ВЕКТОРНЫМИ ИКОНКАМИ
+    // ТЕМА
     function toggleTheme() {
         const docEl = document.documentElement;
         const moonIcon = document.getElementById('moonIcon');
         const sunIcon = document.getElementById('sunIcon');
-        
         if (docEl.getAttribute('data-theme') === 'dark') {
             docEl.removeAttribute('data-theme');
             moonIcon.style.display = 'block';
@@ -442,27 +484,34 @@
         }
     }
 
-    // Загрузка сохраненной темы при открытии
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         document.getElementById('moonIcon').style.display = 'none';
         document.getElementById('sunIcon').style.display = 'block';
     }
 
-    // ОСНОВНАЯ ЛОГИКА КАЛЬКУЛЯТОРА
-    let gsmRate = 7.54;
-    let zpDays = [
-        { id: 1, hours: 10, minutes: 0, orders: 9 },
-        { id: 2, hours: 13, minutes: 30, orders: 11 }
-    ];
+    // ДАТА ПО УМОЛЧАНИЮ
+    function setTodayDate() {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        document.getElementById('calcDate').value = yyyy + '-' + mm + '-' + dd;
+    }
+    setTodayDate();
 
+    // ПЕРЕМЕННЫЕ
+    let gsmRate = 7.54;
+    let zpDays = [{ id: 1, hours: 10, minutes: 0, orders: 9 }, { id: 2, hours: 13, minutes: 30, orders: 11 }];
     let bonuses = [{ id: 1, val: 0 }];
     let penalties = [{ id: 1, val: 0 }];
 
-    const minuteRates = {
-        0: 0, 5: 8, 10: 17, 15: 25, 20: 33, 25: 42, 
-        30: 50, 35: 58, 40: 67, 45: 75, 50: 83, 55: 92
-    };
+    const minuteRates = { 0:0, 5:8, 10:17, 15:25, 20:33, 25:42, 30:50, 35:58, 40:67, 45:75, 50:83, 55:92 };
+
+    function clearExportCode() {
+        document.getElementById('exportCodeText').style.display = 'none';
+        document.getElementById('exportCodeText').value = '';
+    }
 
     function setGsmRate(rate) {
         gsmRate = rate;
@@ -508,28 +557,17 @@
 
     function updateDayValue(id, field, value) {
         const day = zpDays.find(d => d.id === id);
-        if (day) {
-            day[field] = parseFloat(value) || 0;
-            calculate();
-        }
+        if (day) { day[field] = parseFloat(value) || 0; calculate(); }
     }
 
     function renderDays() {
         const list = document.getElementById('daysList');
         list.innerHTML = '';
-        
         zpDays.forEach((day, index) => {
             let hoursOptions = '';
-            for(let i = 0; i <= 16; i++) {
-                hoursOptions += `<option value="${i}" ${day.hours == i ? 'selected' : ''}>${i}</option>`;
-            }
-
+            for(let i = 0; i <= 16; i++) hoursOptions += `<option value="${i}" ${day.hours == i ? 'selected' : ''}>${i}</option>`;
             let minutesOptions = '';
-            for(let i = 0; i <= 55; i += 5) {
-                let displayMin = i < 10 ? '0' + i : i;
-                minutesOptions += `<option value="${i}" ${day.minutes == i ? 'selected' : ''}>${displayMin}</option>`;
-            }
-
+            for(let i = 0; i <= 55; i += 5) minutesOptions += `<option value="${i}" ${day.minutes == i ? 'selected' : ''}>${i < 10 ? '0'+i : i}</option>`;
             const div = document.createElement('div');
             div.className = 'day-card';
             div.innerHTML = `
@@ -540,15 +578,11 @@
                 <div class="row">
                     <div class="input-group">
                         <label>Часы</label>
-                        <select onchange="updateDayValue(${day.id}, 'hours', this.value)">
-                            ${hoursOptions}
-                        </select>
+                        <select onchange="updateDayValue(${day.id}, 'hours', this.value)">${hoursOptions}</select>
                     </div>
                     <div class="input-group">
                         <label>Минуты</label>
-                        <select onchange="updateDayValue(${day.id}, 'minutes', this.value)">
-                            ${minutesOptions}
-                        </select>
+                        <select onchange="updateDayValue(${day.id}, 'minutes', this.value)">${minutesOptions}</select>
                     </div>
                 </div>
                 <div class="row" style="margin-top: 10px;">
@@ -567,23 +601,13 @@
         bonuses.push({ id: newId, val: 0 });
         renderBonuses();
     }
-
     function deleteBonus(id) {
-        if (bonuses.length > 1) {
-            bonuses = bonuses.filter(b => b.id !== id);
-            renderBonuses();
-            calculate();
-        }
+        if (bonuses.length > 1) { bonuses = bonuses.filter(b => b.id !== id); renderBonuses(); calculate(); }
     }
-
     function updateBonus(id, value) {
         const b = bonuses.find(x => x.id === id);
-        if (b) {
-            b.val = parseFloat(value) || 0;
-            calculate();
-        }
+        if (b) { b.val = parseFloat(value) || 0; calculate(); }
     }
-
     function renderBonuses() {
         const list = document.getElementById('bonusList');
         list.innerHTML = '';
@@ -593,8 +617,7 @@
                 <div class="correction-item">
                     <input type="number" value="${valStr}" placeholder="0" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updateBonus(${b.id}, this.value)">
                     ${bonuses.length > 1 ? `<button class="btn-delete" onclick="deleteBonus(${b.id})">✕</button>` : ''}
-                </div>
-            `;
+                </div>`;
         });
     }
 
@@ -603,23 +626,13 @@
         penalties.push({ id: newId, val: 0 });
         renderPenalties();
     }
-
     function deletePenalty(id) {
-        if (penalties.length > 1) {
-            penalties = penalties.filter(p => p.id !== id);
-            renderPenalties();
-            calculate();
-        }
+        if (penalties.length > 1) { penalties = penalties.filter(p => p.id !== id); renderPenalties(); calculate(); }
     }
-
     function updatePenalty(id, value) {
         const p = penalties.find(x => x.id === id);
-        if (p) {
-            p.val = parseFloat(value) || 0;
-            calculate();
-        }
+        if (p) { p.val = parseFloat(value) || 0; calculate(); }
     }
-
     function renderPenalties() {
         const list = document.getElementById('penaltyList');
         list.innerHTML = '';
@@ -629,16 +642,31 @@
                 <div class="correction-item">
                     <input type="number" value="${valStr}" placeholder="0" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updatePenalty(${p.id}, this.value)">
                     ${penalties.length > 1 ? `<button class="btn-delete" onclick="deletePenalty(${p.id})">✕</button>` : ''}
-                </div>
-            `;
+                </div>`;
         });
     }
 
-    function formatTime(h, m) {
-        return `${h}:${m < 10 ? '0' + m : m}`;
-    }
+    function formatTime(h, m) { return `${h}:${m < 10 ? '0' + m : m}`; }
 
     function calculate() {
+        clearExportCode(); // Очищаем старый код при любом изменении
+
+        const name = document.getElementById('courierName').value.trim();
+        const dateRaw = document.getElementById('calcDate').value;
+        const infoDisplay = document.getElementById('displayCourierInfo');
+        
+        if (name || dateRaw) {
+            let dateFormatted = dateRaw;
+            if (dateRaw) {
+                const [y, m, d] = dateRaw.split('-');
+                dateFormatted = `${d}.${m}.${y}`;
+            }
+            infoDisplay.style.display = 'block';
+            infoDisplay.innerHTML = `Сотрудник: ${name || 'Не указан'} | Дата: ${dateFormatted || 'Не указана'}`;
+        } else {
+            infoDisplay.style.display = 'none';
+        }
+
         const baseDist = parseFloat(document.getElementById('baseDistance').value) || 0;
         const hasDelivery = document.getElementById('hasDelivery').checked;
         const delDist = hasDelivery ? (parseFloat(document.getElementById('deliveryDistance').value) || 0) : 0;
@@ -647,24 +675,17 @@
         const hasBonus = document.getElementById('hasBonus').checked;
         const hasPenalty = document.getElementById('hasPenalty').checked;
 
-        // ГСМ
         const gsmRaw = (baseDist + delDist) * gsmRate;
         const gsmRounded = Math.round(gsmRaw);
         const gsmFormula = hasDelivery ? 
             `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
             `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
 
-        // ЗП
-        let zpRaw = 0;
-        let zpRounded = 0;
-        let zpFormula = "";
+        let zpRaw = 0; let zpRounded = 0; let zpFormula = "";
         
         if (hasSalary) {
-            let totalHoursForPay = 0;
-            let totalMinutesForPay = 0;
-            let totalOrders = 0;
-            let timeParts = [];
-            let orderParts = [];
+            let totalHoursForPay = 0; let totalMinutesForPay = 0; let totalOrders = 0;
+            let timeParts = []; let orderParts = [];
 
             zpDays.forEach(d => {
                 totalHoursForPay += parseInt(d.hours);
@@ -686,81 +707,118 @@
             
             const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
             const orderStr = orderParts.length > 1 ? `(${orderParts.join(' + ')})` : orderParts[0];
-            
             zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRounded}`;
         }
 
-        // Подсчет корректировок
-        let bonusTotal = 0;
-        let bonusArr = [];
+        let bonusTotal = 0; let bonusArr = [];
         if (hasBonus) {
-            bonuses.forEach(b => {
-                if (b.val > 0) {
-                    bonusTotal += b.val;
-                    bonusArr.push(b.val);
-                }
-            });
+            bonuses.forEach(b => { if (b.val > 0) { bonusTotal += b.val; bonusArr.push(b.val); } });
         }
 
-        let penaltyTotal = 0;
-        let penaltyArr = [];
+        let penaltyTotal = 0; let penaltyArr = [];
         if (hasPenalty) {
-            penalties.forEach(p => {
-                if (p.val > 0) {
-                    penaltyTotal += p.val;
-                    penaltyArr.push(p.val);
-                }
-            });
+            penalties.forEach(p => { if (p.val > 0) { penaltyTotal += p.val; penaltyArr.push(p.val); } });
         }
 
-        // РКО
         const addrMoney = addrCount * 120;
         const baseRko = gsmRounded + zpRounded + addrMoney;
         const finalRko = baseRko + bonusTotal - penaltyTotal;
         
         let rkoFormula = `${gsmRounded}`;
-        if (hasSalary) {
-            rkoFormula += ` + ${zpRounded}`;
-        }
-        if (hasDelivery) {
-            rkoFormula += ` + (${addrCount} * 120)`;
-        }
-
+        if (hasSalary) rkoFormula += ` + ${zpRounded}`;
+        if (hasDelivery) rkoFormula += ` + (${addrCount} * 120)`;
+        
         if (bonusArr.length > 0 || penaltyArr.length > 0) {
             rkoFormula += ` = ${baseRko}`;
             bonusArr.forEach(b => rkoFormula += ` + ${b}`);
             penaltyArr.forEach(p => rkoFormula += ` - ${p}`);
         }
-
         rkoFormula += ` = ${finalRko}`;
 
-        // Таблица
         const tbody = document.getElementById('resultBody');
-        tbody.innerHTML = `
-            <tr>
-                <td>ГСМ</td>
-                <td class="formula-text">${gsmFormula}</td>
-                <td class="rounded-val">${gsmRounded}</td>
-            </tr>
-        `;
+        tbody.innerHTML = `<tr><td>ГСМ</td><td class="formula-text">${gsmFormula}</td><td class="rounded-val">${gsmRounded}</td></tr>`;
+        if (hasSalary) tbody.innerHTML += `<tr><td>ЗП</td><td class="formula-text">${zpFormula}</td><td class="rounded-val">${zpRounded}</td></tr>`;
+        tbody.innerHTML += `<tr><td>ИТОГО в РКО</td><td class="formula-text">${rkoFormula}</td><td class="rounded-val">${finalRko}</td></tr>`;
+    }
 
-        if (hasSalary) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>ЗП</td>
-                    <td class="formula-text">${zpFormula}</td>
-                    <td class="rounded-val">${zpRounded}</td>
-                </tr>
-            `;
+    // ИМПОРТ И ЭКСПОРТ
+    function generateExportCode() {
+        const state = {
+            name: document.getElementById('courierName').value,
+            date: document.getElementById('calcDate').value,
+            gsm: gsmRate,
+            dist: document.getElementById('baseDistance').value,
+            hasDel: document.getElementById('hasDelivery').checked,
+            delDist: document.getElementById('deliveryDistance').value,
+            addr: document.getElementById('addressCount').value,
+            hasSal: document.getElementById('hasSalary').checked,
+            days: zpDays,
+            hasBon: document.getElementById('hasBonus').checked,
+            bon: bonuses,
+            hasPen: document.getElementById('hasPenalty').checked,
+            pen: penalties
+        };
+        
+        const jsonStr = JSON.stringify(state);
+        const encodedCode = btoa(encodeURIComponent(jsonStr)); // Надежная кодировка для русского языка
+        
+        const output = document.getElementById('exportCodeText');
+        output.value = encodedCode;
+        output.style.display = 'block';
+        output.select();
+    }
+
+    function toggleImportMenu() {
+        const menu = document.getElementById('importMenu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function applyImportCode() {
+        const code = document.getElementById('importCodeText').value.trim();
+        if (!code) {
+            alert('Пожалуйста, вставьте ключ.');
+            return;
         }
+        try {
+            const jsonStr = decodeURIComponent(atob(code));
+            const state = JSON.parse(jsonStr);
 
-        tbody.innerHTML += `
-            <tr>
-                <td>ИТОГО в РКО</td>
-                <td class="formula-text">${rkoFormula}</td>
-                <td class="rounded-val">${finalRko}</td>
-            </tr>
-        `;
+            // Восстановление данных
+            document.getElementById('courierName').value = state.name || '';
+            document.getElementById('calcDate').value = state.date || '';
+
+            setGsmRate(state.gsm || 7.54);
+            document.getElementById('baseDistance').value = state.dist || '';
+
+            document.getElementById('hasDelivery').checked = !!state.hasDel;
+            document.getElementById('deliveryDistance').value = state.delDist || '';
+            document.getElementById('addressCount').value = state.addr || '';
+            toggleDelivery();
+
+            document.getElementById('hasSalary').checked = !!state.hasSal;
+            zpDays = state.days && state.days.length > 0 ? state.days : [{ id: 1, hours: 0, minutes: 0, orders: 0 }];
+            toggleSalary();
+            renderDays();
+
+            document.getElementById('hasBonus').checked = !!state.hasBon;
+            bonuses = state.bon && state.bon.length > 0 ? state.bon : [{ id: 1, val: 0 }];
+            toggleBonus();
+            renderBonuses();
+
+            document.getElementById('hasPenalty').checked = !!state.hasPen;
+            penalties = state.pen && state.pen.length > 0 ? state.pen : [{ id: 1, val: 0 }];
+            togglePenalty();
+            renderPenalties();
+
+            calculate();
+
+            alert('Расчеты успешно загружены!');
+            document.getElementById('importCodeText').value = '';
+            toggleImportMenu();
+            
+        } catch (e) {
+            alert('Ошибка: Неверный или поврежденный ключ. Проверьте, полностью ли вы его скопировали.');
+        }
     }
 
     // Инициализация
@@ -769,15 +827,12 @@
     renderPenalties();
     calculate();
 
+    // Фикс для iOS клавиатуры
     let touchStartY = 0;
-    document.addEventListener('touchstart', function(e) {
-        touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
+    document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
     document.addEventListener('touchmove', function(e) {
-        let touchEndY = e.touches[0].clientY;
-        if (touchEndY - touchStartY > 20) {
-            if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+        if (e.touches[0].clientY - touchStartY > 20) {
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
                 document.activeElement.blur();
             }
         }
