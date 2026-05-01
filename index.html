@@ -144,6 +144,20 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        .btn-add-small {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         .btn-delete {
             background-color: #e74c3c;
             color: white;
@@ -153,6 +167,14 @@
             cursor: pointer;
             font-size: 0.8em;
             -webkit-tap-highlight-color: transparent;
+            height: fit-content;
+            align-self: center;
+        }
+
+        .correction-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .result-table {
@@ -193,7 +215,6 @@
             font-weight: bold;
         }
 
-        /* Стили для футера */
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -268,20 +289,24 @@
     <div class="section">
         <div class="section-title">Корректировки (премии и штрафы)</div>
         <div class="row">
+            <!-- Прибавки -->
             <div class="input-group">
                 <label class="toggle-group">
                     <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка
                 </label>
-                <div id="bonusField" style="display: none;">
-                    <input type="number" id="bonusValue" value="1000" min="0" inputmode="numeric" pattern="[0-9]*" oninput="calculate()">
+                <div id="bonusContainer" style="display: none;">
+                    <div id="bonusList"></div>
+                    <button class="btn-add-small" onclick="addBonus()">+ Добавить сумму</button>
                 </div>
             </div>
+            <!-- Вычитания -->
             <div class="input-group">
                 <label class="toggle-group">
                     <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание
                 </label>
-                <div id="penaltyField" style="display: none;">
-                    <input type="number" id="penaltyValue" value="500" min="0" inputmode="numeric" pattern="[0-9]*" oninput="calculate()">
+                <div id="penaltyContainer" style="display: none;">
+                    <div id="penaltyList"></div>
+                    <button class="btn-add-small" style="background-color:#e67e22;" onclick="addPenalty()">+ Добавить сумму</button>
                 </div>
             </div>
         </div>
@@ -315,20 +340,12 @@
         { id: 2, hours: 13, minutes: 30, orders: 11 }
     ];
 
-    // Справочник для перевода минут в рубли
+    let bonuses = [{ id: 1, val: 0 }];
+    let penalties = [{ id: 1, val: 0 }];
+
     const minuteRates = {
-        0: 0,
-        5: 8,
-        10: 17,
-        15: 25,
-        20: 33,
-        25: 42,
-        30: 50,
-        35: 58,
-        40: 67,
-        45: 75,
-        50: 83,
-        55: 92
+        0: 0, 5: 8, 10: 17, 15: 25, 20: 33, 25: 42, 
+        30: 50, 35: 58, 40: 67, 45: 75, 50: 83, 55: 92
     };
 
     function setGsmRate(rate) {
@@ -339,29 +356,26 @@
     }
 
     function toggleDelivery() {
-        const hasDelivery = document.getElementById('hasDelivery').checked;
-        document.getElementById('deliveryFields').style.display = hasDelivery ? 'flex' : 'none';
+        document.getElementById('deliveryFields').style.display = document.getElementById('hasDelivery').checked ? 'flex' : 'none';
         calculate();
     }
 
     function toggleSalary() {
-        const hasSalary = document.getElementById('hasSalary').checked;
-        document.getElementById('salaryContainer').style.display = hasSalary ? 'block' : 'none';
+        document.getElementById('salaryContainer').style.display = document.getElementById('hasSalary').checked ? 'block' : 'none';
         calculate();
     }
 
     function toggleBonus() {
-        const hasBonus = document.getElementById('hasBonus').checked;
-        document.getElementById('bonusField').style.display = hasBonus ? 'block' : 'none';
+        document.getElementById('bonusContainer').style.display = document.getElementById('hasBonus').checked ? 'block' : 'none';
         calculate();
     }
 
     function togglePenalty() {
-        const hasPenalty = document.getElementById('hasPenalty').checked;
-        document.getElementById('penaltyField').style.display = hasPenalty ? 'block' : 'none';
+        document.getElementById('penaltyContainer').style.display = document.getElementById('hasPenalty').checked ? 'block' : 'none';
         calculate();
     }
 
+    // ЛОГИКА ДНЕЙ ЗП
     function addDay() {
         const newId = zpDays.length > 0 ? Math.max(...zpDays.map(d => d.id)) + 1 : 1;
         zpDays.push({ id: newId, hours: 0, minutes: 0, orders: 0 });
@@ -433,6 +447,79 @@
         });
     }
 
+    // ЛОГИКА НАДБАВОК И ШТРАФОВ
+    function addBonus() {
+        const newId = bonuses.length > 0 ? Math.max(...bonuses.map(b => b.id)) + 1 : 1;
+        bonuses.push({ id: newId, val: 0 });
+        renderBonuses();
+    }
+
+    function deleteBonus(id) {
+        if (bonuses.length > 1) {
+            bonuses = bonuses.filter(b => b.id !== id);
+            renderBonuses();
+            calculate();
+        }
+    }
+
+    function updateBonus(id, value) {
+        const b = bonuses.find(x => x.id === id);
+        if (b) {
+            b.val = parseFloat(value) || 0;
+            calculate();
+        }
+    }
+
+    function renderBonuses() {
+        const list = document.getElementById('bonusList');
+        list.innerHTML = '';
+        bonuses.forEach(b => {
+            const valStr = b.val === 0 ? '' : b.val;
+            list.innerHTML += `
+                <div class="correction-item">
+                    <input type="number" value="${valStr}" placeholder="0" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updateBonus(${b.id}, this.value)">
+                    ${bonuses.length > 1 ? `<button class="btn-delete" onclick="deleteBonus(${b.id})">✕</button>` : ''}
+                </div>
+            `;
+        });
+    }
+
+    function addPenalty() {
+        const newId = penalties.length > 0 ? Math.max(...penalties.map(p => p.id)) + 1 : 1;
+        penalties.push({ id: newId, val: 0 });
+        renderPenalties();
+    }
+
+    function deletePenalty(id) {
+        if (penalties.length > 1) {
+            penalties = penalties.filter(p => p.id !== id);
+            renderPenalties();
+            calculate();
+        }
+    }
+
+    function updatePenalty(id, value) {
+        const p = penalties.find(x => x.id === id);
+        if (p) {
+            p.val = parseFloat(value) || 0;
+            calculate();
+        }
+    }
+
+    function renderPenalties() {
+        const list = document.getElementById('penaltyList');
+        list.innerHTML = '';
+        penalties.forEach(p => {
+            const valStr = p.val === 0 ? '' : p.val;
+            list.innerHTML += `
+                <div class="correction-item">
+                    <input type="number" value="${valStr}" placeholder="0" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updatePenalty(${p.id}, this.value)">
+                    ${penalties.length > 1 ? `<button class="btn-delete" onclick="deletePenalty(${p.id})">✕</button>` : ''}
+                </div>
+            `;
+        });
+    }
+
     function formatTime(h, m) {
         return `${h}:${m < 10 ? '0' + m : m}`;
     }
@@ -443,11 +530,8 @@
         const delDist = hasDelivery ? (parseFloat(document.getElementById('deliveryDistance').value) || 0) : 0;
         const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
         const hasSalary = document.getElementById('hasSalary').checked;
-
         const hasBonus = document.getElementById('hasBonus').checked;
         const hasPenalty = document.getElementById('hasPenalty').checked;
-        const bonusVal = hasBonus ? (parseFloat(document.getElementById('bonusValue').value) || 0) : 0;
-        const penaltyVal = hasPenalty ? (parseFloat(document.getElementById('penaltyValue').value) || 0) : 0;
 
         // ГСМ
         const gsmRaw = (baseDist + delDist) * gsmRate;
@@ -476,13 +560,11 @@
                 orderParts.push(d.orders);
             });
 
-            // Преобразуем лишние минуты в часы
             totalHoursForPay += Math.floor(totalMinutesForPay / 60);
             totalMinutesForPay = totalMinutesForPay % 60;
 
             const minutesMoney = minuteRates[totalMinutesForPay] || 0;
             const timeMoney = (totalHoursForPay * 100) + minutesMoney;
-            
             const orderMoney = totalOrders * 120;
 
             zpRaw = timeMoney + orderMoney;
@@ -494,10 +576,33 @@
             zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRaw.toFixed(0)}`;
         }
 
+        // Подсчет корректировок
+        let bonusTotal = 0;
+        let bonusArr = [];
+        if (hasBonus) {
+            bonuses.forEach(b => {
+                if (b.val > 0) {
+                    bonusTotal += b.val;
+                    bonusArr.push(b.val);
+                }
+            });
+        }
+
+        let penaltyTotal = 0;
+        let penaltyArr = [];
+        if (hasPenalty) {
+            penalties.forEach(p => {
+                if (p.val > 0) {
+                    penaltyTotal += p.val;
+                    penaltyArr.push(p.val);
+                }
+            });
+        }
+
         // РКО
         const addrMoney = addrCount * 120;
         const baseRko = gsmRounded + zpRounded + addrMoney;
-        const finalRko = baseRko + bonusVal - penaltyVal;
+        const finalRko = baseRko + bonusTotal - penaltyTotal;
         
         let rkoFormula = `${gsmRounded}`;
         if (hasSalary) {
@@ -507,10 +612,10 @@
             rkoFormula += ` + (${addrCount} * 120)`;
         }
 
-        if (hasBonus || hasPenalty) {
+        if (bonusArr.length > 0 || penaltyArr.length > 0) {
             rkoFormula += ` = ${baseRko}`;
-            if (hasBonus) rkoFormula += ` + ${bonusVal}`;
-            if (hasPenalty) rkoFormula += ` - ${penaltyVal}`;
+            bonusArr.forEach(b => rkoFormula += ` + ${b}`);
+            penaltyArr.forEach(p => rkoFormula += ` - ${p}`);
         }
 
         rkoFormula += ` = ${finalRko}`;
@@ -544,7 +649,10 @@
         `;
     }
 
+    // Инициализация
     renderDays();
+    renderBonuses();
+    renderPenalties();
     calculate();
 
     let touchStartY = 0;
