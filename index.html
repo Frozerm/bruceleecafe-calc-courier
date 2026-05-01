@@ -192,6 +192,27 @@
             color: var(--accent-color);
             font-weight: bold;
         }
+
+        /* Стили для футера */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -279,6 +300,12 @@
             <!-- Сюда вставится расчет -->
         </tbody>
     </table>
+
+    <!-- Футер -->
+    <div class="footer">
+        Создатель <a href="https://t.me/frozermeow" target="_blank">Frozerm</a><br>
+        Сайт создан исключительно для помощи в работе. Никаких коммерческих целей не преследуются.
+    </div>
 </div>
 
 <script>
@@ -449,15 +476,13 @@
                 orderParts.push(d.orders);
             });
 
-            // Преобразуем лишние минуты в часы (например 90 минут = 1 час 30 минут)
+            // Преобразуем лишние минуты в часы
             totalHoursForPay += Math.floor(totalMinutesForPay / 60);
-            totalMinutesForPay = totalMinutesForPay % 60; // Остаток всегда будет кратен 5
+            totalMinutesForPay = totalMinutesForPay % 60;
 
-            // Оплата за время с учетом специальной сетки минут
             const minutesMoney = minuteRates[totalMinutesForPay] || 0;
             const timeMoney = (totalHoursForPay * 100) + minutesMoney;
             
-            // Оплата за заказы
             const orderMoney = totalOrders * 120;
 
             zpRaw = timeMoney + orderMoney;
