@@ -76,7 +76,7 @@
             box-sizing: border-box;
             font-size: 1em;
             caret-color: #333;
-            background-color: #fff; /* Для select */
+            background-color: #fff;
         }
 
         .row {
@@ -288,6 +288,22 @@
         { id: 2, hours: 13, minutes: 30, orders: 11 }
     ];
 
+    // Справочник для перевода минут в рубли
+    const minuteRates = {
+        0: 0,
+        5: 8,
+        10: 17,
+        15: 25,
+        20: 33,
+        25: 42,
+        30: 50,
+        35: 58,
+        40: 67,
+        45: 75,
+        50: 83,
+        55: 92
+    };
+
     function setGsmRate(rate) {
         gsmRate = rate;
         document.getElementById('rate-754').classList.toggle('active', rate === 7.54);
@@ -347,13 +363,11 @@
         list.innerHTML = '';
         
         zpDays.forEach((day, index) => {
-            // Генерируем выпадающий список для Часов
             let hoursOptions = '';
             for(let i = 0; i <= 16; i++) {
                 hoursOptions += `<option value="${i}" ${day.hours == i ? 'selected' : ''}>${i}</option>`;
             }
 
-            // Генерируем выпадающий список для Минут
             let minutesOptions = '';
             for(let i = 0; i <= 55; i += 5) {
                 let displayMin = i < 10 ? '0' + i : i;
@@ -408,30 +422,45 @@
         const bonusVal = hasBonus ? (parseFloat(document.getElementById('bonusValue').value) || 0) : 0;
         const penaltyVal = hasPenalty ? (parseFloat(document.getElementById('penaltyValue').value) || 0) : 0;
 
+        // ГСМ
         const gsmRaw = (baseDist + delDist) * gsmRate;
         const gsmRounded = Math.round(gsmRaw);
         const gsmFormula = hasDelivery ? 
             `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
             `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
 
+        // ЗП
         let zpRaw = 0;
         let zpRounded = 0;
         let zpFormula = "";
         
         if (hasSalary) {
-            let totalDecimalHours = 0;
+            let totalHoursForPay = 0;
+            let totalMinutesForPay = 0;
             let totalOrders = 0;
             let timeParts = [];
             let orderParts = [];
 
             zpDays.forEach(d => {
-                totalDecimalHours += d.hours + (d.minutes / 60);
-                totalOrders += d.orders;
+                totalHoursForPay += parseInt(d.hours);
+                totalMinutesForPay += parseInt(d.minutes);
+                totalOrders += parseInt(d.orders);
                 timeParts.push(formatTime(d.hours, d.minutes));
                 orderParts.push(d.orders);
             });
 
-            zpRaw = (totalDecimalHours * 100) + (totalOrders * 120);
+            // Преобразуем лишние минуты в часы (например 90 минут = 1 час 30 минут)
+            totalHoursForPay += Math.floor(totalMinutesForPay / 60);
+            totalMinutesForPay = totalMinutesForPay % 60; // Остаток всегда будет кратен 5
+
+            // Оплата за время с учетом специальной сетки минут
+            const minutesMoney = minuteRates[totalMinutesForPay] || 0;
+            const timeMoney = (totalHoursForPay * 100) + minutesMoney;
+            
+            // Оплата за заказы
+            const orderMoney = totalOrders * 120;
+
+            zpRaw = timeMoney + orderMoney;
             zpRounded = Math.round(zpRaw);
             
             const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
@@ -440,6 +469,7 @@
             zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRaw.toFixed(0)}`;
         }
 
+        // РКО
         const addrMoney = addrCount * 120;
         const baseRko = gsmRounded + zpRounded + addrMoney;
         const finalRko = baseRko + bonusVal - penaltyVal;
@@ -460,6 +490,7 @@
 
         rkoFormula += ` = ${finalRko}`;
 
+        // Таблица
         const tbody = document.getElementById('resultBody');
         tbody.innerHTML = `
             <tr>
@@ -499,7 +530,6 @@
     document.addEventListener('touchmove', function(e) {
         let touchEndY = e.touches[0].clientY;
         if (touchEndY - touchStartY > 20) {
-            // Исключаем select из правила потери фокуса, чтобы свайп не мешал прокрутке внутри самого списка
             if (document.activeElement && document.activeElement.tagName === 'INPUT') {
                 document.activeElement.blur();
             }
