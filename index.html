@@ -57,6 +57,8 @@
 
         .input-group {
             margin-bottom: 15px;
+            flex: 1;
+            min-width: 150px;
         }
 
         label {
@@ -73,18 +75,57 @@
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 1em;
-            caret-color: #333; /* Исправление белого курсора на iOS */
+            caret-color: #333;
+        }
+
+        /* Стили для ползунков */
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+
+        .slider-val {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 1.1em;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .row {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-        }
-
-        .row > div {
-            flex: 1;
-            min-width: 150px;
         }
 
         .toggle-group {
@@ -116,7 +157,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
-            -webkit-tap-highlight-color: transparent; /* Убираем синюю подсветку при тапе на iOS */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .radio-btn.active {
@@ -201,7 +242,6 @@
 <div class="container">
     <h1>Расчет курьера</h1>
 
-    <!-- Переключатель ставки ГСМ -->
     <div class="gsm-rate-selector">
         <div id="rate-754" class="radio-btn active" onclick="setGsmRate(7.54)">ГСМ 7.54</div>
         <div id="rate-87" class="radio-btn" onclick="setGsmRate(8.7)">ГСМ 8.7</div>
@@ -226,7 +266,6 @@
             </div>
             <div class="input-group">
                 <label>Адресов в развозе</label>
-                <!-- pattern="[0-9]*" в связке с inputmode="numeric" вызывает нужную iOS клавиатуру -->
                 <input type="number" id="addressCount" value="4" inputmode="numeric" pattern="[0-9]*" oninput="calculate()">
             </div>
         </div>
@@ -251,21 +290,19 @@
     <div class="section">
         <div class="section-title">Корректировки (премии и штрафы)</div>
         <div class="row">
-            <div>
+            <div class="input-group">
                 <label class="toggle-group">
-                    <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка к ЗП
+                    <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка
                 </label>
-                <div class="input-group" id="bonusField" style="display: none;">
-                    <label>Сумма прибавки</label>
+                <div id="bonusField" style="display: none;">
                     <input type="number" id="bonusValue" value="1000" min="0" inputmode="numeric" pattern="[0-9]*" oninput="calculate()">
                 </div>
             </div>
-            <div>
+            <div class="input-group">
                 <label class="toggle-group">
-                    <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание из ЗП
+                    <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание
                 </label>
-                <div class="input-group" id="penaltyField" style="display: none;">
-                    <label>Сумма вычитания</label>
+                <div id="penaltyField" style="display: none;">
                     <input type="number" id="penaltyValue" value="500" min="0" inputmode="numeric" pattern="[0-9]*" oninput="calculate()">
                 </div>
             </div>
@@ -344,6 +381,12 @@
         const day = zpDays.find(d => d.id === id);
         if (day) {
             day[field] = parseFloat(value) || 0;
+            // Обновляем текст над ползунком
+            if (field === 'hours') {
+                document.getElementById(`val-hours-${id}`).innerText = day.hours;
+            } else if (field === 'minutes') {
+                document.getElementById(`val-minutes-${id}`).innerText = day.minutes;
+            }
             calculate();
         }
     }
@@ -355,20 +398,28 @@
             const div = document.createElement('div');
             div.className = 'day-card';
             div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
                     <strong>День ${index + 1}</strong>
                     ${zpDays.length > 1 ? `<button class="btn-delete" onclick="deleteDay(${day.id})">Удалить</button>` : ''}
                 </div>
                 <div class="row">
                     <div class="input-group">
-                        <label>Часы</label>
-                        <input type="number" value="${day.hours}" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updateDayValue(${day.id}, 'hours', this.value)">
+                        <div class="slider-header">
+                            <label style="margin:0;">Часы</label>
+                            <span class="slider-val"><span id="val-hours-${day.id}">${day.hours}</span> ч</span>
+                        </div>
+                        <input type="range" value="${day.hours}" min="0" max="16" step="1" oninput="updateDayValue(${day.id}, 'hours', this.value)">
                     </div>
                     <div class="input-group">
-                        <label>Минуты</label>
-                        <input type="number" value="${day.minutes}" min="0" max="59" inputmode="numeric" pattern="[0-9]*" oninput="updateDayValue(${day.id}, 'minutes', this.value)">
+                        <div class="slider-header">
+                            <label style="margin:0;">Минуты</label>
+                            <span class="slider-val"><span id="val-minutes-${day.id}">${day.minutes}</span> мин</span>
+                        </div>
+                        <input type="range" value="${day.minutes}" min="0" max="55" step="5" oninput="updateDayValue(${day.id}, 'minutes', this.value)">
                     </div>
-                    <div class="input-group">
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="input-group" style="margin-bottom:0;">
                         <label>Заказы</label>
                         <input type="number" value="${day.orders}" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updateDayValue(${day.id}, 'orders', this.value)">
                     </div>
@@ -389,20 +440,17 @@
         const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
         const hasSalary = document.getElementById('hasSalary').checked;
 
-        // Корректировки
         const hasBonus = document.getElementById('hasBonus').checked;
         const hasPenalty = document.getElementById('hasPenalty').checked;
         const bonusVal = hasBonus ? (parseFloat(document.getElementById('bonusValue').value) || 0) : 0;
         const penaltyVal = hasPenalty ? (parseFloat(document.getElementById('penaltyValue').value) || 0) : 0;
 
-        // ГСМ расчет
         const gsmRaw = (baseDist + delDist) * gsmRate;
         const gsmRounded = Math.round(gsmRaw);
         const gsmFormula = hasDelivery ? 
             `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
             `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
 
-        // ЗП расчет
         let zpRaw = 0;
         let zpRounded = 0;
         let zpFormula = "";
@@ -429,7 +477,6 @@
             zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRaw.toFixed(0)}`;
         }
 
-        // Итого РКО
         const addrMoney = addrCount * 120;
         const baseRko = gsmRounded + zpRounded + addrMoney;
         const finalRko = baseRko + bonusVal - penaltyVal;
@@ -450,7 +497,6 @@
 
         rkoFormula += ` = ${finalRko}`;
 
-        // Обновление таблицы
         const tbody = document.getElementById('resultBody');
         tbody.innerHTML = `
             <tr>
@@ -479,11 +525,9 @@
         `;
     }
 
-    // Инициализация
     renderDays();
     calculate();
 
-    // СКРИПТ ДЛЯ УДОБСТВА НА IOS (Скрытие клавиатуры при свайпе вниз)
     let touchStartY = 0;
     document.addEventListener('touchstart', function(e) {
         touchStartY = e.touches[0].clientY;
@@ -491,10 +535,8 @@
 
     document.addEventListener('touchmove', function(e) {
         let touchEndY = e.touches[0].clientY;
-        // Если пользователь свайпнул вниз (разница больше 20 пикселей)
         if (touchEndY - touchStartY > 20) {
-            // И если сейчас активен какой-то input - снимаем с него фокус
-            if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+            if (document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'range') {
                 document.activeElement.blur();
             }
         }
