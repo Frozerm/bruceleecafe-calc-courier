@@ -340,7 +340,6 @@
         </button>
     </div>
 
-    <!-- Блок данных курьера -->
     <div class="section">
         <div class="section-title">Данные сотрудника</div>
         <div class="row">
@@ -356,11 +355,11 @@
     </div>
 
     <div class="gsm-rate-selector">
-        <div id="rate-754" class="radio-btn active" onclick="setGsmRate(7.54)">ГСМ 7.54</div>
+        <div id="rate-665" class="radio-btn active" onclick="setGsmRate(6.65)">ГСМ 6.65</div>
+        <div id="rate-754" class="radio-btn" onclick="setGsmRate(7.54)">ГСМ 7.54</div>
         <div id="rate-87" class="radio-btn" onclick="setGsmRate(8.7)">ГСМ 8.7</div>
     </div>
 
-    <!-- Блок ГСМ -->
     <div class="section">
         <div class="section-title">Категория: ГСМ</div>
         <div class="input-group">
@@ -384,7 +383,6 @@
         </div>
     </div>
 
-    <!-- Блок ЗП -->
     <div class="section">
         <div class="section-title">
             <span>Категория: ЗП</span>
@@ -399,7 +397,6 @@
         </div>
     </div>
 
-    <!-- Блок Корректировок -->
     <div class="section">
         <div class="section-title">Корректировки (премии и штрафы)</div>
         <div class="row">
@@ -424,7 +421,6 @@
         </div>
     </div>
 
-    <!-- Таблица результатов -->
     <table class="result-table" id="resultTable">
         <div class="courier-info-display" id="displayCourierInfo" style="display:none; border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
         <thead>
@@ -435,11 +431,9 @@
             </tr>
         </thead>
         <tbody id="resultBody">
-            <!-- Сюда вставится расчет -->
-        </tbody>
+            </tbody>
     </table>
 
-    <!-- Блок Экспорт / Импорт / Excel -->
     <div class="section export-import-box" style="margin-top: 20px;">
         <div class="section-title">Передача расчетов и Excel</div>
         <div class="row">
@@ -462,14 +456,12 @@
         </div>
     </div>
 
-    <!-- Футер -->
     <div class="footer">
         Создатель <a href="https://t.me/frozermeow" target="_blank">Frozerm</a><br>
         Сайт создан исключительно для помощи в работе. Никаких коммерческих целей не преследуются.
     </div>
 </div>
 
-<!-- Модальное окно для недостающих данных перед скачиванием Excel -->
 <div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
     <div style="background:var(--card-bg); padding:20px; border-radius:var(--border-radius); width:90%; max-width:400px; box-shadow:var(--shadow);">
         <h3 style="margin-top:0; color:var(--primary-color);">Недостающие данные</h3>
@@ -518,7 +510,7 @@
     setTodayDate();
 
     // ПЕРЕМЕННЫЕ
-    let gsmRate = 7.54;
+    let gsmRate = 6.65;
     let zpDays = [{ id: 1, hours: 10, minutes: 0, orders: 9 }, { id: 2, hours: 13, minutes: 30, orders: 11 }];
     let bonuses = [{ id: 1, val: 0 }];
     let penalties = [{ id: 1, val: 0 }];
@@ -541,6 +533,7 @@
 
     function setGsmRate(rate) {
         gsmRate = rate;
+        document.getElementById('rate-665').classList.toggle('active', rate === 6.65);
         document.getElementById('rate-754').classList.toggle('active', rate === 7.54);
         document.getElementById('rate-87').classList.toggle('active', rate === 8.7);
         calculate();
@@ -806,7 +799,7 @@
             document.getElementById('courierName').value = state.name || '';
             document.getElementById('calcDate').value = state.date || '';
 
-            setGsmRate(state.gsm || 7.54);
+            setGsmRate(state.gsm || 6.65); // Защита от старых ключей без ставки
             document.getElementById('baseDistance').value = state.dist || '';
 
             document.getElementById('hasDelivery').checked = !!state.hasDel;
