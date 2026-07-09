@@ -374,7 +374,7 @@
 
     <div class="gsm-rate-input-wrapper">
         <label for="gsmRateInput">Ставка ГСМ:</label>
-        <input type="number" id="gsmRateInput" value="6.65" step="0.01" min="0" inputmode="decimal" oninput="updateGsmRateFromInput()">
+        <input type="number" id="gsmRateInput" value="6.72" step="0.01" min="0" inputmode="decimal" oninput="updateGsmRateFromInput()">
     </div>
 
     <div class="section">
@@ -530,7 +530,7 @@
     setTodayDate();
 
     // ПЕРЕМЕННЫЕ
-    let gsmRate = 6.65;
+    let gsmRate = 6.72;
     let zpDays = [{ id: 1, date: '', hours: 10, minutes: 0, orders: 9 }, { id: 2, date: '', hours: 13, minutes: 30, orders: 11 }];
     let bonuses = [{ id: 1, val: 0, comment: '' }];
     let penalties = [{ id: 1, val: 0, comment: '' }];
@@ -897,7 +897,7 @@
             const state = JSON.parse(decodeURIComponent(atob(code)));
             document.getElementById('courierName').value = state.name || '';
             document.getElementById('calcDate').value = state.date || '';
-            setGsmRate(state.gsm || 6.65);
+            setGsmRate(state.gsm || 6.72);
             document.getElementById('baseDistance').value = state.dist || '';
             document.getElementById('hasDelivery').checked = !!state.hasDel;
             document.getElementById('deliveryDistance').value = state.delDist || '';
