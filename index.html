@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,8 +14,8 @@
             --card-bg: #ffffff;
             --text-color: #333;
             --border-radius: 8px;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
-            
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
             --border-color: #ddd;
             --input-bg: #fff;
             --label-color: #666;
@@ -33,7 +34,7 @@
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --text-color: #e0e0e0;
-            --shadow: 0 4px 6px rgba(0,0,0,0.5);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 
             --border-color: #444;
             --input-bg: #2c2c2c;
@@ -130,7 +131,11 @@
             color: var(--label-color);
         }
 
-        input[type="number"], input[type="text"], input[type="date"], select, textarea {
+        input[type="number"],
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -265,7 +270,8 @@
             transition: background-color 0.3s;
         }
 
-        .result-table th, .result-table td {
+        .result-table th,
+        .result-table td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid var(--table-border);
@@ -335,298 +341,373 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="header-wrapper">
-        <h1>Квитанция об оплате</h1>
-        <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Переключить тему">
-            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-        </button>
-    </div>
+    <div class="container">
+        <div class="header-wrapper">
+            <h1>Квитанция об оплате</h1>
+            <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Переключить тему">
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    style="display: none;">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
 
-    <div class="section">
-        <div class="section-title">Данные сотрудника</div>
-        <div class="row">
-            <div class="input-group">
-                <label>ФИО Курьера</label>
-                <input type="text" id="courierName" placeholder="Иванов И.И." oninput="calculate()">
-            </div>
-            <div class="input-group">
-                <label>Дата расчета</label>
-                <input type="date" id="calcDate" onchange="calculate()">
+        <div class="section">
+            <div class="section-title">Данные сотрудника</div>
+            <div class="row">
+                <div class="input-group">
+                    <label>ФИО Курьера</label>
+                    <input type="text" id="courierName" placeholder="Иванов И.И." oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Дата расчета</label>
+                    <input type="date" id="calcDate" onchange="calculate()">
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="gsm-rate-input-wrapper">
-        <label for="gsmRateInput">Ставка ГСМ:</label>
-        <input type="number" id="gsmRateInput" value="6.72" step="0.01" min="0" inputmode="decimal" oninput="updateGsmRateFromInput()">
-    </div>
-
-    <div class="section">
-        <div class="section-title">Категория: ГСМ</div>
-        <div class="input-group">
-            <label>Путь в км</label>
-            <input type="number" id="baseDistance" value="124.56" step="0.01" inputmode="decimal" oninput="calculate()">
+        <div class="gsm-rate-input-wrapper">
+            <label for="gsmRateInput">Ставка ГСМ:</label>
+            <input type="number" id="gsmRateInput" value="6.72" step="0.01" min="0" inputmode="decimal"
+                oninput="updateGsmRateFromInput()">
         </div>
-        
-        <label class="toggle-group">
-            <input type="checkbox" id="hasDelivery" checked onchange="toggleDelivery()"> Был ли развоз?
-        </label>
 
-        <div id="deliveryFields" class="row">
+        <div class="section">
+            <div class="section-title">Категория: ГСМ</div>
             <div class="input-group">
-                <label>Путь развоза (км)</label>
-                <input type="number" id="deliveryDistance" value="18.16" step="0.01" inputmode="decimal" oninput="calculate()">
+                <label>Путь в км</label>
+                <input type="number" id="baseDistance" value="124.56" step="0.01" inputmode="decimal"
+                    oninput="calculate()">
             </div>
-            <div class="input-group">
-                <label>Адресов в развозе</label>
-                <input type="number" id="addressCount" value="4" inputmode="numeric" pattern="[0-9]*" oninput="calculate()">
-            </div>
-        </div>
-    </div>
 
-    <div class="section">
-        <div class="section-title">
-            <span>Категория: ЗП</span>
-            <label class="toggle-group" style="font-size: 0.7em; margin-bottom: 0;">
-                <input type="checkbox" id="hasSalary" checked onchange="toggleSalary()"> Рассчитывать ЗП?
+            <label class="toggle-group">
+                <input type="checkbox" id="hasDelivery" checked onchange="toggleDelivery()"> Был ли развоз?
             </label>
-        </div>
-        
-        <div id="salaryContainer">
-            <div id="daysList"></div>
-            <button class="btn-add" onclick="addDay()">+ Добавить рабочий день</button>
-        </div>
-    </div>
 
-    <div class="section">
-        <div class="section-title">Корректировки (премии и штрафы)</div>
-        <div class="row">
-            <div class="input-group">
-                <label class="toggle-group">
-                    <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка
-                </label>
-                <div id="bonusContainer" style="display: none;">
-                    <div id="bonusList"></div>
-                    <button class="btn-add-small" onclick="addBonus()">+ Добавить прибавку</button>
+            <div id="deliveryFields" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="input-group" style="width: 100%; margin-bottom: 0;">
+                    <label>Адреса в развозе</label>
+                    <input type="text" id="deliveryAddresses" placeholder="Например: ул. Ленина 1, пр. Мира 5..."
+                        oninput="calculate()">
                 </div>
-            </div>
-            <div class="input-group">
-                <label class="toggle-group">
-                    <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание
-                </label>
-                <div id="penaltyContainer" style="display: none;">
-                    <div id="penaltyList"></div>
-                    <button class="btn-add-small" style="background-color:#e67e22;" onclick="addPenalty()">+ Добавить вычитание</button>
+                <div class="row" style="width: 100%;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Путь развоза (км)</label>
+                        <input type="number" id="deliveryDistance" value="18.16" step="0.01" inputmode="decimal"
+                            oninput="calculate()">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Адресов в развозе</label>
+                        <input type="number" id="addressCount" value="4" inputmode="numeric" pattern="[0-9]*"
+                            oninput="calculate()">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <table class="result-table" id="resultTable">
-        <div class="courier-info-display" id="displayCourierInfo" style="display:none; border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
-        <thead>
-            <tr>
-                <th>Тип</th>
-                <th>Расчет (формула)</th>
-                <th>Итог</th>
-            </tr>
-        </thead>
-        <tbody id="resultBody">
+        <div class="section">
+            <div class="section-title">
+                <span>Категория: ЗП</span>
+                <label class="toggle-group" style="font-size: 0.7em; margin-bottom: 0;">
+                    <input type="checkbox" id="hasSalary" checked onchange="toggleSalary()"> Рассчитывать ЗП?
+                </label>
+            </div>
+
+            <div id="salaryContainer">
+                <div id="daysList"></div>
+                <button class="btn-add" onclick="addDay()">+ Добавить рабочий день</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <span>Категория: Лайтбокс</span>
+                <label class="toggle-group" style="font-size: 0.7em; margin-bottom: 0;">
+                    <input type="checkbox" id="hasLightbox" checked onchange="toggleLightbox()"> Рассчитывать лайтбокс?
+                </label>
+            </div>
+
+            <div id="lightboxContainer">
+                <div class="row" style="margin-bottom: 10px;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Номер лайтбокса</label>
+                        <input type="text" id="lightboxNumber" placeholder="Например, 12 или А-5" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Часы</label>
+                        <select id="lightboxHours" onchange="calculate()"></select>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Минуты</label>
+                        <select id="lightboxMinutes" onchange="calculate()"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Корректировки (премии и штрафы)</div>
+            <div class="row">
+                <div class="input-group">
+                    <label class="toggle-group">
+                        <input type="checkbox" id="hasBonus" onchange="toggleBonus()"> Прибавка
+                    </label>
+                    <div id="bonusContainer" style="display: none;">
+                        <div id="bonusList"></div>
+                        <button class="btn-add-small" onclick="addBonus()">+ Добавить прибавку</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="toggle-group">
+                        <input type="checkbox" id="hasPenalty" onchange="togglePenalty()"> Вычитание
+                    </label>
+                    <div id="penaltyContainer" style="display: none;">
+                        <div id="penaltyList"></div>
+                        <button class="btn-add-small" style="background-color:#e67e22;" onclick="addPenalty()">+
+                            Добавить вычитание</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table class="result-table" id="resultTable">
+            <div class="courier-info-display" id="displayCourierInfo"
+                style="display:none; border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
+            <thead>
+                <tr>
+                    <th>Тип</th>
+                    <th>Расчет (формула)</th>
+                    <th>Итог</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody">
             </tbody>
-    </table>
+        </table>
 
-    <div class="section export-import-box" style="margin-top: 20px;">
-        <div class="section-title">Передача расчетов и документы</div>
-        <div class="row">
-            <div class="input-group">
-                <button class="btn-add" onclick="generateExportCode()">Сгенерировать ID Ключ</button>
-                <textarea id="exportCodeText" rows="3" readonly placeholder="Здесь появится ключ..." style="margin-top:10px; display:none; resize:none;" onclick="this.select()"></textarea>
+        <div class="section export-import-box" style="margin-top: 20px;">
+            <div class="section-title">Передача расчетов и документы</div>
+            <div class="row">
+                <div class="input-group">
+                    <button class="btn-add" onclick="generateExportCode()">Сгенерировать ID Ключ</button>
+                    <textarea id="exportCodeText" rows="3" readonly placeholder="Здесь появится ключ..."
+                        style="margin-top:10px; display:none; resize:none;" onclick="this.select()"></textarea>
+                </div>
+                <div class="input-group">
+                    <button class="btn-add" style="background-color: #8e44ad;" onclick="toggleImportMenu()">Ввести ID
+                        Ключ</button>
+                    <div id="importMenu" style="display:none; margin-top:10px;">
+                        <textarea id="importCodeText" rows="3" placeholder="Вставьте ключ сюда..."
+                            style="resize:none; background:var(--input-bg); color:var(--text-color); border:1px solid var(--border-color); width:100%; padding:10px; box-sizing:border-box; border-radius:4px;"></textarea>
+                        <button class="btn-add-small" style="margin-top:10px;" onclick="applyImportCode()">Загрузить
+                            данные</button>
+                    </div>
+                </div>
             </div>
-            <div class="input-group">
-                <button class="btn-add" style="background-color: #8e44ad;" onclick="toggleImportMenu()">Ввести ID Ключ</button>
-                <div id="importMenu" style="display:none; margin-top:10px;">
-                    <textarea id="importCodeText" rows="3" placeholder="Вставьте ключ сюда..." style="resize:none; background:var(--input-bg); color:var(--text-color); border:1px solid var(--border-color); width:100%; padding:10px; box-sizing:border-box; border-radius:4px;"></textarea>
-                    <button class="btn-add-small" style="margin-top:10px;" onclick="applyImportCode()">Загрузить данные</button>
+            <div class="row">
+                <div class="input-group">
+                    <button class="btn-add" style="background-color: #16a085;"
+                        onclick="checkValidationAndRun('excel')">Скачать в Excel таблицу</button>
+                </div>
+                <div class="input-group">
+                    <button class="btn-add" style="background-color: #d35400;"
+                        onclick="checkValidationAndRun('print')">Сгенерировать для печати</button>
                 </div>
             </div>
         </div>
-        <div class="row">
-             <div class="input-group">
-                <button class="btn-add" style="background-color: #16a085;" onclick="checkValidationAndRun('excel')">Скачать в Excel таблицу</button>
-             </div>
-             <div class="input-group">
-                <button class="btn-add" style="background-color: #d35400;" onclick="checkValidationAndRun('print')">Сгенерировать для печати</button>
-             </div>
+
+        <div class="footer">
+            Создатель <a href="https://t.me/frozermeow" target="_blank">Frozerm</a><br>
+            Сайт создан исключительно для помощи в работе. Никаких коммерческих целей не преследуются.
         </div>
     </div>
 
-    <div class="footer">
-        Создатель <a href="https://t.me/frozermeow" target="_blank">Frozerm</a><br>
-        Сайт создан исключительно для помощи в работе. Никаких коммерческих целей не преследуются.
-    </div>
-</div>
-
-<div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
-    <div style="background:var(--card-bg); padding:20px; border-radius:var(--border-radius); width:90%; max-width:400px; box-shadow:var(--shadow);">
-        <h3 style="margin-top:0; color:var(--primary-color);">Недостающие данные</h3>
-        <p style="font-size:0.9em; color:var(--label-color); margin-bottom:15px;">Заполните обязательные поля перед продолжением:</p>
-        <div id="modalInputs" style="max-height: 50vh; overflow-y: auto;"></div>
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-add" style="background:#e74c3c; margin-top:0;" onclick="closeModal()">Отмена</button>
-            <button class="btn-add" style="margin-top:0; background:#16a085;" onclick="submitModal()">Продолжить</button>
+    <div id="modalOverlay"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+        <div
+            style="background:var(--card-bg); padding:20px; border-radius:var(--border-radius); width:90%; max-width:400px; box-shadow:var(--shadow);">
+            <h3 style="margin-top:0; color:var(--primary-color);">Недостающие данные</h3>
+            <p style="font-size:0.9em; color:var(--label-color); margin-bottom:15px;">Заполните обязательные поля перед
+                продолжением:</p>
+            <div id="modalInputs" style="max-height: 50vh; overflow-y: auto;"></div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-add" style="background:#e74c3c; margin-top:0;" onclick="closeModal()">Отмена</button>
+                <button class="btn-add" style="margin-top:0; background:#16a085;"
+                    onclick="submitModal()">Продолжить</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // ТЕМА
-    function toggleTheme() {
-        const docEl = document.documentElement;
-        const moonIcon = document.getElementById('moonIcon');
-        const sunIcon = document.getElementById('sunIcon');
-        if (docEl.getAttribute('data-theme') === 'dark') {
-            docEl.removeAttribute('data-theme');
-            moonIcon.style.display = 'block';
-            sunIcon.style.display = 'none';
-            localStorage.setItem('theme', 'light');
-        } else {
-            docEl.setAttribute('data-theme', 'dark');
-            moonIcon.style.display = 'none';
-            sunIcon.style.display = 'block';
-            localStorage.setItem('theme', 'dark');
+    <script>
+        // ТЕМА
+        function toggleTheme() {
+            const docEl = document.documentElement;
+            const moonIcon = document.getElementById('moonIcon');
+            const sunIcon = document.getElementById('sunIcon');
+            if (docEl.getAttribute('data-theme') === 'dark') {
+                docEl.removeAttribute('data-theme');
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+                localStorage.setItem('theme', 'light');
+            } else {
+                docEl.setAttribute('data-theme', 'dark');
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+                localStorage.setItem('theme', 'dark');
+            }
         }
-    }
 
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.getElementById('moonIcon').style.display = 'none';
-        document.getElementById('sunIcon').style.display = 'block';
-    }
-
-    // ДАТА ПО УМОЛЧАНИЮ
-    function setTodayDate() {
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-        document.getElementById('calcDate').value = yyyy + '-' + mm + '-' + dd;
-    }
-    setTodayDate();
-
-    // ПЕРЕМЕННЫЕ
-    let gsmRate = 6.72;
-    let zpDays = [{ id: 1, date: '', hours: 10, minutes: 0, orders: 9 }, { id: 2, date: '', hours: 13, minutes: 30, orders: 11 }];
-    let bonuses = [{ id: 1, val: 0, comment: '' }];
-    let penalties = [{ id: 1, val: 0, comment: '' }];
-    let currentAction = ''; // Хранит тип действия (excel или print)
-
-    const minuteRates = { 0:0, 5:8, 10:17, 15:25, 20:33, 25:42, 30:50, 35:58, 40:67, 45:75, 50:83, 55:92 };
-
-    function getAddressString(count) {
-        if (count === 0) return "0 адресов";
-        const mod10 = count % 10;
-        const mod100 = count % 100;
-        if (mod10 === 1 && mod100 !== 11) return count + " адрес";
-        else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return count + " адреса";
-        else return count + " адресов";
-    }
-
-    function escapeHtmlAttr(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    function clearExportCode() {
-        document.getElementById('exportCodeText').style.display = 'none';
-        document.getElementById('exportCodeText').value = '';
-    }
-
-    function setGsmRate(rate) {
-        gsmRate = rate;
-        document.getElementById('gsmRateInput').value = rate;
-        calculate();
-    }
-
-    function updateGsmRateFromInput() {
-        const val = parseFloat(document.getElementById('gsmRateInput').value);
-        if (!isNaN(val) && val >= 0) {
-            gsmRate = val;
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('moonIcon').style.display = 'none';
+            document.getElementById('sunIcon').style.display = 'block';
         }
-        calculate();
-    }
 
-    function toggleDelivery() {
-        document.getElementById('deliveryFields').style.display = document.getElementById('hasDelivery').checked ? 'flex' : 'none';
-        calculate();
-    }
+        // ДАТА ПО УМОЛЧАНИЮ
+        function setTodayDate() {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            document.getElementById('calcDate').value = yyyy + '-' + mm + '-' + dd;
+        }
+        setTodayDate();
 
-    function toggleSalary() {
-        document.getElementById('salaryContainer').style.display = document.getElementById('hasSalary').checked ? 'block' : 'none';
-        calculate();
-    }
+        // ПЕРЕМЕННЫЕ
+        let gsmRate = 6.72;
+        let zpDays = [{ id: 1, date: '', hours: 10, minutes: 0, orders: 9 }, { id: 2, date: '', hours: 13, minutes: 30, orders: 11 }];
+        let bonuses = [{ id: 1, val: 0, comment: '' }];
+        let penalties = [{ id: 1, val: 0, comment: '' }];
+        let currentAction = ''; // Хранит тип действия (excel или print)
 
-    function toggleBonus() {
-        document.getElementById('bonusContainer').style.display = document.getElementById('hasBonus').checked ? 'block' : 'none';
-        calculate();
-    }
+        const minuteRates = { 0: 0, 5: 8, 10: 17, 15: 25, 20: 33, 25: 42, 30: 50, 35: 58, 40: 67, 45: 75, 50: 83, 55: 92 };
+        const lbMinuteRates = { 0: 0, 5: 3, 10: 7, 15: 10, 20: 13, 25: 17, 30: 20, 35: 24, 40: 27, 45: 30, 50: 34, 55: 37 };
 
-    function togglePenalty() {
-        document.getElementById('penaltyContainer').style.display = document.getElementById('hasPenalty').checked ? 'block' : 'none';
-        calculate();
-    }
+        function getAddressString(count) {
+            if (count === 0) return "0 адресов";
+            const mod10 = count % 10;
+            const mod100 = count % 100;
+            if (mod10 === 1 && mod100 !== 11) return count + " адрес";
+            else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return count + " адреса";
+            else return count + " адресов";
+        }
 
-    function addDay() {
-        const newId = zpDays.length > 0 ? Math.max(...zpDays.map(d => d.id)) + 1 : 1;
-        zpDays.push({ id: newId, date: '', hours: 0, minutes: 0, orders: 0 });
-        renderDays();
-        calculate();
-    }
+        function escapeHtmlAttr(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
 
-    function deleteDay(id) {
-        if (zpDays.length > 1) {
-            zpDays = zpDays.filter(d => d.id !== id);
+        function clearExportCode() {
+            document.getElementById('exportCodeText').style.display = 'none';
+            document.getElementById('exportCodeText').value = '';
+        }
+
+        function setGsmRate(rate) {
+            gsmRate = rate;
+            document.getElementById('gsmRateInput').value = rate;
+            calculate();
+        }
+
+        function updateGsmRateFromInput() {
+            const val = parseFloat(document.getElementById('gsmRateInput').value);
+            if (!isNaN(val) && val >= 0) {
+                gsmRate = val;
+            }
+            calculate();
+        }
+
+        function toggleDelivery() {
+            document.getElementById('deliveryFields').style.display = document.getElementById('hasDelivery').checked ? 'flex' : 'none';
+            calculate();
+        }
+
+        function toggleSalary() {
+            document.getElementById('salaryContainer').style.display = document.getElementById('hasSalary').checked ? 'block' : 'none';
+            calculate();
+        }
+
+        function toggleBonus() {
+            document.getElementById('bonusContainer').style.display = document.getElementById('hasBonus').checked ? 'block' : 'none';
+            calculate();
+        }
+
+        function togglePenalty() {
+            document.getElementById('penaltyContainer').style.display = document.getElementById('hasPenalty').checked ? 'block' : 'none';
+            calculate();
+        }
+
+        function toggleLightbox() {
+            document.getElementById('lightboxContainer').style.display = document.getElementById('hasLightbox').checked ? 'block' : 'none';
+            calculate();
+        }
+
+        function initLightboxSelects() {
+            const hSelect = document.getElementById('lightboxHours');
+            const mSelect = document.getElementById('lightboxMinutes');
+            if (!hSelect || !mSelect) return;
+            hSelect.innerHTML = '';
+            for (let i = 0; i <= 24; i++) {
+                hSelect.innerHTML += `<option value="${i}" ${i === 1 ? 'selected' : ''}>${i}</option>`;
+            }
+            mSelect.innerHTML = '';
+            for (let i = 0; i <= 55; i += 5) {
+                mSelect.innerHTML += `<option value="${i}" ${i === 30 ? 'selected' : ''}>${i < 10 ? '0' + i : i}</option>`;
+            }
+        }
+
+        function addDay() {
+            const newId = zpDays.length > 0 ? Math.max(...zpDays.map(d => d.id)) + 1 : 1;
+            zpDays.push({ id: newId, date: '', hours: 0, minutes: 0, orders: 0 });
             renderDays();
             calculate();
         }
-    }
 
-    function updateDayValue(id, field, value) {
-        const day = zpDays.find(d => d.id === id);
-        if (day) { 
-            if (field === 'date') day[field] = value;
-            else day[field] = parseFloat(value) || 0; 
-            calculate(); 
+        function deleteDay(id) {
+            if (zpDays.length > 1) {
+                zpDays = zpDays.filter(d => d.id !== id);
+                renderDays();
+                calculate();
+            }
         }
-    }
 
-    function renderDays() {
-        const list = document.getElementById('daysList');
-        list.innerHTML = '';
-        zpDays.forEach((day, index) => {
-            let hoursOptions = '';
-            for(let i = 0; i <= 16; i++) hoursOptions += `<option value="${i}" ${day.hours == i ? 'selected' : ''}>${i}</option>`;
-            let minutesOptions = '';
-            for(let i = 0; i <= 55; i += 5) minutesOptions += `<option value="${i}" ${day.minutes == i ? 'selected' : ''}>${i < 10 ? '0'+i : i}</option>`;
-            
-            const div = document.createElement('div');
-            div.className = 'day-card';
-            div.innerHTML = `
+        function updateDayValue(id, field, value) {
+            const day = zpDays.find(d => d.id === id);
+            if (day) {
+                if (field === 'date') day[field] = value;
+                else day[field] = parseFloat(value) || 0;
+                calculate();
+            }
+        }
+
+        function renderDays() {
+            const list = document.getElementById('daysList');
+            list.innerHTML = '';
+            zpDays.forEach((day, index) => {
+                let hoursOptions = '';
+                for (let i = 0; i <= 16; i++) hoursOptions += `<option value="${i}" ${day.hours == i ? 'selected' : ''}>${i}</option>`;
+                let minutesOptions = '';
+                for (let i = 0; i <= 55; i += 5) minutesOptions += `<option value="${i}" ${day.minutes == i ? 'selected' : ''}>${i < 10 ? '0' + i : i}</option>`;
+
+                const div = document.createElement('div');
+                div.className = 'day-card';
+                div.innerHTML = `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
                     <strong>День ${index + 1}</strong>
                     ${zpDays.length > 1 ? `<button class="btn-delete" onclick="deleteDay(${day.id})">Удалить</button>` : ''}
@@ -654,32 +735,32 @@
                     </div>
                 </div>
             `;
-            list.appendChild(div);
-        });
-    }
-
-    function addBonus() {
-        const newId = bonuses.length > 0 ? Math.max(...bonuses.map(b => b.id)) + 1 : 1;
-        bonuses.push({ id: newId, val: 0, comment: '' });
-        renderBonuses();
-    }
-    function deleteBonus(id) {
-        if (bonuses.length > 1) { bonuses = bonuses.filter(b => b.id !== id); renderBonuses(); calculate(); }
-    }
-    function updateBonus(id, field, value) {
-        const b = bonuses.find(x => x.id === id);
-        if (b) { 
-            if (field === 'val') b.val = parseFloat(value) || 0; 
-            else b.comment = value;
-            calculate(); 
+                list.appendChild(div);
+            });
         }
-    }
-    function renderBonuses() {
-        const list = document.getElementById('bonusList');
-        list.innerHTML = '';
-        bonuses.forEach(b => {
-            const valStr = b.val === 0 ? '' : b.val;
-            list.innerHTML += `
+
+        function addBonus() {
+            const newId = bonuses.length > 0 ? Math.max(...bonuses.map(b => b.id)) + 1 : 1;
+            bonuses.push({ id: newId, val: 0, comment: '' });
+            renderBonuses();
+        }
+        function deleteBonus(id) {
+            if (bonuses.length > 1) { bonuses = bonuses.filter(b => b.id !== id); renderBonuses(); calculate(); }
+        }
+        function updateBonus(id, field, value) {
+            const b = bonuses.find(x => x.id === id);
+            if (b) {
+                if (field === 'val') b.val = parseFloat(value) || 0;
+                else b.comment = value;
+                calculate();
+            }
+        }
+        function renderBonuses() {
+            const list = document.getElementById('bonusList');
+            list.innerHTML = '';
+            bonuses.forEach(b => {
+                const valStr = b.val === 0 ? '' : b.val;
+                list.innerHTML += `
                 <div class="correction-card">
                     <div style="display:flex; gap:10px;">
                         <input type="number" value="${valStr}" placeholder="Сумма" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updateBonus(${b.id}, 'val', this.value)" style="flex:1;">
@@ -687,31 +768,31 @@
                     </div>
                     <input type="text" value="${escapeHtmlAttr(b.comment)}" placeholder="Комментарий (например: премия)" oninput="updateBonus(${b.id}, 'comment', this.value)">
                 </div>`;
-        });
-    }
-
-    function addPenalty() {
-        const newId = penalties.length > 0 ? Math.max(...penalties.map(p => p.id)) + 1 : 1;
-        penalties.push({ id: newId, val: 0, comment: '' });
-        renderPenalties();
-    }
-    function deletePenalty(id) {
-        if (penalties.length > 1) { penalties = penalties.filter(p => p.id !== id); renderPenalties(); calculate(); }
-    }
-    function updatePenalty(id, field, value) {
-        const p = penalties.find(x => x.id === id);
-        if (p) { 
-            if (field === 'val') p.val = parseFloat(value) || 0; 
-            else p.comment = value;
-            calculate(); 
+            });
         }
-    }
-    function renderPenalties() {
-        const list = document.getElementById('penaltyList');
-        list.innerHTML = '';
-        penalties.forEach(p => {
-            const valStr = p.val === 0 ? '' : p.val;
-            list.innerHTML += `
+
+        function addPenalty() {
+            const newId = penalties.length > 0 ? Math.max(...penalties.map(p => p.id)) + 1 : 1;
+            penalties.push({ id: newId, val: 0, comment: '' });
+            renderPenalties();
+        }
+        function deletePenalty(id) {
+            if (penalties.length > 1) { penalties = penalties.filter(p => p.id !== id); renderPenalties(); calculate(); }
+        }
+        function updatePenalty(id, field, value) {
+            const p = penalties.find(x => x.id === id);
+            if (p) {
+                if (field === 'val') p.val = parseFloat(value) || 0;
+                else p.comment = value;
+                calculate();
+            }
+        }
+        function renderPenalties() {
+            const list = document.getElementById('penaltyList');
+            list.innerHTML = '';
+            penalties.forEach(p => {
+                const valStr = p.val === 0 ? '' : p.val;
+                list.innerHTML += `
                 <div class="correction-card">
                     <div style="display:flex; gap:10px;">
                         <input type="number" value="${valStr}" placeholder="Сумма" min="0" inputmode="numeric" pattern="[0-9]*" oninput="updatePenalty(${p.id}, 'val', this.value)" style="flex:1;">
@@ -719,347 +800,412 @@
                     </div>
                     <input type="text" value="${escapeHtmlAttr(p.comment)}" placeholder="Комментарий (например: за 07.05)" oninput="updatePenalty(${p.id}, 'comment', this.value)">
                 </div>`;
-        });
-    }
-
-    function formatTime(h, m) { return `${h}:${m < 10 ? '0' + m : m}`; }
-
-    let currentCommentsString = "";
-
-    function calculate() {
-        clearExportCode();
-
-        const name = document.getElementById('courierName').value.trim();
-        const dateRaw = document.getElementById('calcDate').value;
-        const infoDisplay = document.getElementById('displayCourierInfo');
-        
-        if (name || dateRaw) {
-            let dateFormatted = dateRaw;
-            if (dateRaw) {
-                const [y, m, d] = dateRaw.split('-');
-                dateFormatted = `${d}.${m}.${y}`;
-            }
-            infoDisplay.style.display = 'block';
-            infoDisplay.innerHTML = `Курьер: ${name || 'Не указан'} | Дата: ${dateFormatted || 'Не указана'}`;
-        } else {
-            infoDisplay.style.display = 'none';
+            });
         }
 
-        const baseDist = parseFloat(document.getElementById('baseDistance').value) || 0;
-        const hasDelivery = document.getElementById('hasDelivery').checked;
-        const delDist = hasDelivery ? (parseFloat(document.getElementById('deliveryDistance').value) || 0) : 0;
-        const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
-        const hasSalary = document.getElementById('hasSalary').checked;
-        const hasBonus = document.getElementById('hasBonus').checked;
-        const hasPenalty = document.getElementById('hasPenalty').checked;
+        function formatTime(h, m) { return `${h}:${m < 10 ? '0' + m : m}`; }
 
-        const gsmRaw = (baseDist + delDist) * gsmRate;
-        const gsmRounded = Math.round(gsmRaw);
-        const gsmFormula = hasDelivery ? 
-            `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
-            `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
+        let currentCommentsString = "";
 
-        let zpRaw = 0; let zpRounded = 0; 
-        let zpFormula = "-"; 
-        let zpLabelUi = "ЗП(-)"; 
-        let zpSumUI = "-";
-        
-        if (hasSalary) {
-            zpLabelUi = "ЗП";
-            let totalHoursForPay = 0; let totalMinutesForPay = 0; let totalOrders = 0;
-            let timeParts = []; let orderParts = []; let datesArr = [];
+        function calculate() {
+            clearExportCode();
 
-            zpDays.forEach(d => {
-                totalHoursForPay += parseInt(d.hours);
-                totalMinutesForPay += parseInt(d.minutes);
-                totalOrders += parseInt(d.orders);
-                timeParts.push(formatTime(d.hours, d.minutes));
-                orderParts.push(d.orders);
-                
-                if (d.date) {
-                    const parts = d.date.split('-');
-                    if (parts.length === 3) datesArr.push(`${parts[2]}.${parts[1]}`);
-                    else datesArr.push('??.??');
-                } else {
-                    datesArr.push('??.??');
+            const name = document.getElementById('courierName').value.trim();
+            const dateRaw = document.getElementById('calcDate').value;
+            const infoDisplay = document.getElementById('displayCourierInfo');
+
+            if (name || dateRaw) {
+                let dateFormatted = dateRaw;
+                if (dateRaw) {
+                    const [y, m, d] = dateRaw.split('-');
+                    dateFormatted = `${d}.${m}.${y}`;
                 }
-            });
-
-            if (datesArr.length > 0) {
-                zpLabelUi = `ЗП (${datesArr.join('; ')})`;
+                infoDisplay.style.display = 'block';
+                infoDisplay.innerHTML = `Курьер: ${name || 'Не указан'} | Дата: ${dateFormatted || 'Не указана'}`;
+            } else {
+                infoDisplay.style.display = 'none';
             }
 
-            totalHoursForPay += Math.floor(totalMinutesForPay / 60);
-            totalMinutesForPay = totalMinutesForPay % 60;
+            const baseDist = parseFloat(document.getElementById('baseDistance').value) || 0;
+            const hasDelivery = document.getElementById('hasDelivery').checked;
+            const delDist = hasDelivery ? (parseFloat(document.getElementById('deliveryDistance').value) || 0) : 0;
+            const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
+            const hasSalary = document.getElementById('hasSalary').checked;
+            const hasBonus = document.getElementById('hasBonus').checked;
+            const hasPenalty = document.getElementById('hasPenalty').checked;
 
-            const minutesMoney = minuteRates[totalMinutesForPay] || 0;
-            const timeMoney = (totalHoursForPay * 100) + minutesMoney;
-            const orderMoney = totalOrders * 120;
+            const gsmRaw = (baseDist + delDist) * gsmRate;
+            const gsmRounded = Math.round(gsmRaw);
+            const gsmFormula = hasDelivery ?
+                `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
+                `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
 
-            zpRaw = timeMoney + orderMoney;
-            zpRounded = Math.round(zpRaw);
-            zpSumUI = zpRounded;
-            
-            const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
-            const orderStr = orderParts.length > 1 ? `(${orderParts.join(' + ')})` : orderParts[0];
-            zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRounded}`;
-        }
+            let zpRaw = 0; let zpRounded = 0;
+            let zpFormula = "-";
+            let zpLabelUi = "ЗП(-)";
+            let zpSumUI = "-";
 
-        let bonusTotal = 0; let bonusArr = [];
-        let penaltyTotal = 0; let penaltyArr = [];
-        let commentsArr = [];
+            if (hasSalary) {
+                zpLabelUi = "ЗП";
+                let totalHoursForPay = 0; let totalMinutesForPay = 0; let totalOrders = 0;
+                let timeParts = []; let orderParts = []; let datesArr = [];
 
-        if (hasBonus) {
-            bonuses.forEach(b => { 
-                if (b.val > 0) { 
-                    bonusTotal += b.val; 
-                    bonusArr.push(b.val); 
-                    if (b.comment && b.comment.trim() !== '') {
-                        commentsArr.push(`+${b.val}р ${b.comment.trim()}`);
+                zpDays.forEach(d => {
+                    totalHoursForPay += parseInt(d.hours);
+                    totalMinutesForPay += parseInt(d.minutes);
+                    totalOrders += parseInt(d.orders);
+                    timeParts.push(formatTime(d.hours, d.minutes));
+                    orderParts.push(d.orders);
+
+                    if (d.date) {
+                        const parts = d.date.split('-');
+                        if (parts.length === 3) datesArr.push(`${parts[2]}.${parts[1]}`);
+                        else datesArr.push('??.??');
+                    } else {
+                        datesArr.push('??.??');
                     }
-                } 
-            });
-        }
+                });
 
-        if (hasPenalty) {
-            penalties.forEach(p => { 
-                if (p.val > 0) { 
-                    penaltyTotal += p.val; 
-                    penaltyArr.push(p.val); 
-                    if (p.comment && p.comment.trim() !== '') {
-                        commentsArr.push(`-${p.val}р ${p.comment.trim()}`);
+                if (datesArr.length > 0) {
+                    zpLabelUi = `ЗП (${datesArr.join('; ')})`;
+                }
+
+                totalHoursForPay += Math.floor(totalMinutesForPay / 60);
+                totalMinutesForPay = totalMinutesForPay % 60;
+
+                const minutesMoney = minuteRates[totalMinutesForPay] || 0;
+                const timeMoney = (totalHoursForPay * 100) + minutesMoney;
+                const orderMoney = totalOrders * 120;
+
+                zpRaw = timeMoney + orderMoney;
+                zpRounded = Math.round(zpRaw);
+                zpSumUI = zpRounded;
+
+                const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
+                const orderStr = orderParts.length > 1 ? `(${orderParts.join(' + ')})` : orderParts[0];
+                zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRounded}`;
+            }
+
+            const hasLightbox = document.getElementById('hasLightbox').checked;
+            let lbRaw = 0;
+            let lbRounded = 0;
+            let lbFormula = "-";
+            let lbLabelUi = "Лайтбокс(-)";
+            let lbSumUI = "-";
+
+            if (hasLightbox) {
+                const lbNum = document.getElementById('lightboxNumber') ? document.getElementById('lightboxNumber').value.trim() : "";
+                lbLabelUi = lbNum ? `Лайтбокс (№${lbNum})` : "Лайтбокс";
+                const lbHours = parseInt(document.getElementById('lightboxHours').value) || 0;
+                const lbMinutes = parseInt(document.getElementById('lightboxMinutes').value) || 0;
+                const minMoney = lbMinuteRates[lbMinutes] || 0;
+                lbRaw = (lbHours * 40) + minMoney;
+                lbRounded = Math.round(lbRaw);
+                lbSumUI = lbRounded;
+                lbFormula = `${formatTime(lbHours, lbMinutes)} * 40 = ${lbRounded}`;
+            }
+
+            let bonusTotal = 0; let bonusArr = [];
+            let penaltyTotal = 0; let penaltyArr = [];
+            let commentsArr = [];
+
+            if (hasBonus) {
+                bonuses.forEach(b => {
+                    if (b.val > 0) {
+                        bonusTotal += b.val;
+                        bonusArr.push(b.val);
+                        if (b.comment && b.comment.trim() !== '') {
+                            commentsArr.push(`+${b.val}р ${b.comment.trim()}`);
+                        }
                     }
-                } 
-            });
+                });
+            }
+
+            if (hasPenalty) {
+                penalties.forEach(p => {
+                    if (p.val > 0) {
+                        penaltyTotal += p.val;
+                        penaltyArr.push(p.val);
+                        if (p.comment && p.comment.trim() !== '') {
+                            commentsArr.push(`-${p.val}р ${p.comment.trim()}`);
+                        }
+                    }
+                });
+            }
+
+            currentCommentsString = commentsArr.join(', ');
+
+            const addrMoney = addrCount * 120;
+            const baseRko = gsmRounded + zpRounded + lbRounded + addrMoney;
+            const finalRko = baseRko + bonusTotal - penaltyTotal;
+
+            let rkoFormula = `${gsmRounded}`;
+            if (hasSalary) rkoFormula += ` + ${zpRounded}`;
+            if (hasLightbox) rkoFormula += ` + ${lbRounded}`;
+            if (hasDelivery) rkoFormula += ` + (${addrCount} * 120)`;
+
+            if (bonusArr.length > 0 || penaltyArr.length > 0) {
+                rkoFormula += ` = ${baseRko}`;
+                bonusArr.forEach(b => rkoFormula += ` + ${b}`);
+                penaltyArr.forEach(p => rkoFormula += ` - ${p}`);
+            }
+            rkoFormula += ` = ${finalRko}`;
+
+            const tbody = document.getElementById('resultBody');
+            tbody.innerHTML = `<tr><td>ГСМ</td><td class="formula-text">${gsmFormula}</td><td class="rounded-val">${gsmRounded}</td></tr>`;
+            tbody.innerHTML += `<tr><td>${zpLabelUi}</td><td class="formula-text">${zpFormula}</td><td class="rounded-val">${zpSumUI}</td></tr>`;
+            tbody.innerHTML += `<tr><td>${lbLabelUi}</td><td class="formula-text">${lbFormula}</td><td class="rounded-val">${lbSumUI}</td></tr>`;
+            tbody.innerHTML += `<tr class="total-row"><td>ИТОГО в РКО</td><td class="formula-text">${rkoFormula}</td><td class="rounded-val">${finalRko}</td></tr>`;
+
+            if (currentCommentsString !== "") {
+                tbody.innerHTML += `<tr class="comments-row"><td colspan="3">Комментарии: ${currentCommentsString}</td></tr>`;
+            }
         }
 
-        currentCommentsString = commentsArr.join(', ');
-
-        const addrMoney = addrCount * 120;
-        const baseRko = gsmRounded + zpRounded + addrMoney;
-        const finalRko = baseRko + bonusTotal - penaltyTotal;
-        
-        let rkoFormula = `${gsmRounded}`;
-        if (hasSalary) rkoFormula += ` + ${zpRounded}`;
-        if (hasDelivery) rkoFormula += ` + (${addrCount} * 120)`;
-        
-        if (bonusArr.length > 0 || penaltyArr.length > 0) {
-            rkoFormula += ` = ${baseRko}`;
-            bonusArr.forEach(b => rkoFormula += ` + ${b}`);
-            penaltyArr.forEach(p => rkoFormula += ` - ${p}`);
+        // ИМПОРТ И ЭКСПОРТ
+        function generateExportCode() {
+            const state = {
+                name: document.getElementById('courierName').value,
+                date: document.getElementById('calcDate').value,
+                gsm: gsmRate,
+                dist: document.getElementById('baseDistance').value,
+                hasDel: document.getElementById('hasDelivery').checked,
+                delAddr: document.getElementById('deliveryAddresses') ? document.getElementById('deliveryAddresses').value : '',
+                delDist: document.getElementById('deliveryDistance').value,
+                addr: document.getElementById('addressCount').value,
+                hasSal: document.getElementById('hasSalary').checked,
+                days: zpDays,
+                hasLb: document.getElementById('hasLightbox') ? document.getElementById('hasLightbox').checked : true,
+                lbNum: document.getElementById('lightboxNumber') ? document.getElementById('lightboxNumber').value : '',
+                lbH: document.getElementById('lightboxHours') ? document.getElementById('lightboxHours').value : '1',
+                lbM: document.getElementById('lightboxMinutes') ? document.getElementById('lightboxMinutes').value : '30',
+                hasBon: document.getElementById('hasBonus').checked,
+                bon: bonuses,
+                hasPen: document.getElementById('hasPenalty').checked,
+                pen: penalties
+            };
+            const jsonStr = JSON.stringify(state);
+            const encodedCode = btoa(encodeURIComponent(jsonStr));
+            const output = document.getElementById('exportCodeText');
+            output.value = encodedCode;
+            output.style.display = 'block';
+            output.select();
         }
-        rkoFormula += ` = ${finalRko}`;
 
-        const tbody = document.getElementById('resultBody');
-        tbody.innerHTML = `<tr><td>ГСМ</td><td class="formula-text">${gsmFormula}</td><td class="rounded-val">${gsmRounded}</td></tr>`;
-        tbody.innerHTML += `<tr><td>${zpLabelUi}</td><td class="formula-text">${zpFormula}</td><td class="rounded-val">${zpSumUI}</td></tr>`;
-        tbody.innerHTML += `<tr class="total-row"><td>ИТОГО в РКО</td><td class="formula-text">${rkoFormula}</td><td class="rounded-val">${finalRko}</td></tr>`;
-        
-        if (currentCommentsString !== "") {
-            tbody.innerHTML += `<tr class="comments-row"><td colspan="3">Комментарии: ${currentCommentsString}</td></tr>`;
+        function toggleImportMenu() {
+            const menu = document.getElementById('importMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
         }
-    }
 
-    // ИМПОРТ И ЭКСПОРТ
-    function generateExportCode() {
-        const state = {
-            name: document.getElementById('courierName').value,
-            date: document.getElementById('calcDate').value,
-            gsm: gsmRate,
-            dist: document.getElementById('baseDistance').value,
-            hasDel: document.getElementById('hasDelivery').checked,
-            delDist: document.getElementById('deliveryDistance').value,
-            addr: document.getElementById('addressCount').value,
-            hasSal: document.getElementById('hasSalary').checked,
-            days: zpDays,
-            hasBon: document.getElementById('hasBonus').checked,
-            bon: bonuses,
-            hasPen: document.getElementById('hasPenalty').checked,
-            pen: penalties
-        };
-        const jsonStr = JSON.stringify(state);
-        const encodedCode = btoa(encodeURIComponent(jsonStr));
-        const output = document.getElementById('exportCodeText');
-        output.value = encodedCode;
-        output.style.display = 'block';
-        output.select();
-    }
-
-    function toggleImportMenu() {
-        const menu = document.getElementById('importMenu');
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function applyImportCode() {
-        const code = document.getElementById('importCodeText').value.trim();
-        if (!code) { alert('Пожалуйста, вставьте ключ.'); return; }
-        try {
-            const state = JSON.parse(decodeURIComponent(atob(code)));
-            document.getElementById('courierName').value = state.name || '';
-            document.getElementById('calcDate').value = state.date || '';
-            setGsmRate(state.gsm || 6.72);
-            document.getElementById('baseDistance').value = state.dist || '';
-            document.getElementById('hasDelivery').checked = !!state.hasDel;
-            document.getElementById('deliveryDistance').value = state.delDist || '';
-            document.getElementById('addressCount').value = state.addr || '';
-            toggleDelivery();
-            document.getElementById('hasSalary').checked = !!state.hasSal;
-            zpDays = state.days && state.days.length > 0 ? state.days : [{ id: 1, date: '', hours: 0, minutes: 0, orders: 0 }];
-            toggleSalary();
-            renderDays();
-            document.getElementById('hasBonus').checked = !!state.hasBon;
-            bonuses = state.bon && state.bon.length > 0 ? state.bon : [{ id: 1, val: 0, comment: '' }];
-            toggleBonus();
-            renderBonuses();
-            document.getElementById('hasPenalty').checked = !!state.hasPen;
-            penalties = state.pen && state.pen.length > 0 ? state.pen : [{ id: 1, val: 0, comment: '' }];
-            togglePenalty();
-            renderPenalties();
-            calculate();
-            alert('Расчеты успешно загружены!');
-            document.getElementById('importCodeText').value = '';
-            toggleImportMenu();
-        } catch (e) {
-            alert('Ошибка: Неверный или поврежденный ключ. Проверьте, полностью ли вы его скопировали.');
+        function applyImportCode() {
+            const code = document.getElementById('importCodeText').value.trim();
+            if (!code) { alert('Пожалуйста, вставьте ключ.'); return; }
+            try {
+                const state = JSON.parse(decodeURIComponent(atob(code)));
+                document.getElementById('courierName').value = state.name || '';
+                document.getElementById('calcDate').value = state.date || '';
+                setGsmRate(state.gsm || 6.72);
+                document.getElementById('baseDistance').value = state.dist || '';
+                document.getElementById('hasDelivery').checked = !!state.hasDel;
+                if (document.getElementById('deliveryAddresses')) {
+                    document.getElementById('deliveryAddresses').value = state.delAddr || '';
+                }
+                document.getElementById('deliveryDistance').value = state.delDist || '';
+                document.getElementById('addressCount').value = state.addr || '';
+                toggleDelivery();
+                document.getElementById('hasSalary').checked = !!state.hasSal;
+                zpDays = state.days && state.days.length > 0 ? state.days : [{ id: 1, date: '', hours: 0, minutes: 0, orders: 0 }];
+                toggleSalary();
+                if (document.getElementById('hasLightbox')) {
+                    document.getElementById('hasLightbox').checked = state.hasLb !== undefined ? !!state.hasLb : true;
+                    document.getElementById('lightboxNumber').value = state.lbNum || '';
+                    if (document.getElementById('lightboxHours')) document.getElementById('lightboxHours').value = state.lbH !== undefined ? state.lbH : '1';
+                    if (document.getElementById('lightboxMinutes')) document.getElementById('lightboxMinutes').value = state.lbM !== undefined ? state.lbM : '30';
+                    toggleLightbox();
+                }
+                renderDays();
+                document.getElementById('hasBonus').checked = !!state.hasBon;
+                bonuses = state.bon && state.bon.length > 0 ? state.bon : [{ id: 1, val: 0, comment: '' }];
+                toggleBonus();
+                renderBonuses();
+                document.getElementById('hasPenalty').checked = !!state.hasPen;
+                penalties = state.pen && state.pen.length > 0 ? state.pen : [{ id: 1, val: 0, comment: '' }];
+                togglePenalty();
+                renderPenalties();
+                calculate();
+                alert('Расчеты успешно загружены!');
+                document.getElementById('importCodeText').value = '';
+                toggleImportMenu();
+            } catch (e) {
+                alert('Ошибка: Неверный или поврежденный ключ. Проверьте, полностью ли вы его скопировали.');
+            }
         }
-    }
 
-    function checkValidationAndRun(action) {
-        currentAction = action;
-        generateExportCode(); 
-        
-        const nameInput = document.getElementById('courierName');
-        const isNameEmpty = nameInput.value.trim() === '';
-        
-        const hasSalary = document.getElementById('hasSalary').checked;
-        const missingDates = hasSalary ? zpDays.filter(d => !d.date) : [];
+        function checkValidationAndRun(action) {
+            currentAction = action;
+            generateExportCode();
 
-        if (isNameEmpty || missingDates.length > 0) {
-            const container = document.getElementById('modalInputs');
-            container.innerHTML = '';
-            
-            if (isNameEmpty) {
-                container.innerHTML += `
+            const nameInput = document.getElementById('courierName');
+            const isNameEmpty = nameInput.value.trim() === '';
+
+            const hasSalary = document.getElementById('hasSalary').checked;
+            const missingDates = hasSalary ? zpDays.filter(d => !d.date) : [];
+
+            if (isNameEmpty || missingDates.length > 0) {
+                const container = document.getElementById('modalInputs');
+                container.innerHTML = '';
+
+                if (isNameEmpty) {
+                    container.innerHTML += `
                     <div style="margin-bottom:20px;">
                         <label style="color:var(--text-color); font-weight:bold;">ФИО Курьера (обязательно)</label>
                         <input type="text" id="modalCourierName" placeholder="Например, Иванов И.И." style="width:100%; padding:10px; border-radius:4px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); margin-top:5px;">
                     </div>
                 `;
-            }
-            
-            if (missingDates.length > 0) {
-                zpDays.forEach((day, i) => {
-                    if (!day.date) {
-                        container.innerHTML += `
+                }
+
+                if (missingDates.length > 0) {
+                    zpDays.forEach((day, i) => {
+                        if (!day.date) {
+                            container.innerHTML += `
                             <div style="margin-bottom:15px;">
-                                <label style="color:var(--text-color); font-weight:bold;">Дата для смены "День ${i+1}"</label>
+                                <label style="color:var(--text-color); font-weight:bold;">Дата для смены "День ${i + 1}"</label>
                                 <input type="date" id="modalDate-${day.id}" style="width:100%; padding:10px; border-radius:4px; border:1px solid var(--border-color); background:var(--input-bg); color:var(--text-color); margin-top:5px;">
                             </div>
                         `;
-                    }
-                });
-            }
-            document.getElementById('modalOverlay').style.display = 'flex';
-        } else {
-            executeAction();
-        }
-    }
-
-    function closeModal() {
-        document.getElementById('modalOverlay').style.display = 'none';
-    }
-
-    function submitModal() {
-        const modalNameInput = document.getElementById('modalCourierName');
-        if (modalNameInput) {
-            const newName = modalNameInput.value.trim();
-            if (newName) {
-                document.getElementById('courierName').value = newName;
+                        }
+                    });
+                }
+                document.getElementById('modalOverlay').style.display = 'flex';
             } else {
-                alert("Пожалуйста, заполните ФИО курьера.");
-                return;
+                executeAction();
             }
         }
 
-        const hasSalary = document.getElementById('hasSalary').checked;
-        if (hasSalary) {
-            for (let day of zpDays) {
-                const modalDateInp = document.getElementById(`modalDate-${day.id}`);
-                if (modalDateInp) {
-                    if (modalDateInp.value) {
-                        day.date = modalDateInp.value;
-                    } else {
-                        alert(`Пожалуйста, заполните все даты смен.`);
-                        return;
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function submitModal() {
+            const modalNameInput = document.getElementById('modalCourierName');
+            if (modalNameInput) {
+                const newName = modalNameInput.value.trim();
+                if (newName) {
+                    document.getElementById('courierName').value = newName;
+                } else {
+                    alert("Пожалуйста, заполните ФИО курьера.");
+                    return;
+                }
+            }
+
+            const hasSalary = document.getElementById('hasSalary').checked;
+            if (hasSalary) {
+                for (let day of zpDays) {
+                    const modalDateInp = document.getElementById(`modalDate-${day.id}`);
+                    if (modalDateInp) {
+                        if (modalDateInp.value) {
+                            day.date = modalDateInp.value;
+                        } else {
+                            alert(`Пожалуйста, заполните все даты смен.`);
+                            return;
+                        }
                     }
                 }
             }
-        }
-        
-        renderDays(); 
-        calculate();
-        generateExportCode(); 
-        executeAction();
-    }
 
-    function executeAction() {
-        if (currentAction === 'excel') generateExcel();
-        else if (currentAction === 'print') generatePrintPage();
-        closeModal();
-    }
-
-    function escapeXml(unsafe) {
-        if (typeof unsafe !== 'string') unsafe = String(unsafe);
-        return unsafe.replace(/[<>&'"]/g, function (c) {
-            switch (c) {
-                case '<': return '&lt;'; case '>': return '&gt;';
-                case '&': return '&amp;'; case '\'': return '&apos;'; case '"': return '&quot;';
-            }
-        });
-    }
-
-    // ГЕНЕРАЦИЯ СТРАНИЦЫ ДЛЯ ПЕЧАТИ
-    function generatePrintPage() {
-        const name = document.getElementById('courierName').value || "-";
-        const dateRaw = document.getElementById('calcDate').value;
-        let dateFormatted = "-";
-        if (dateRaw) {
-            const [y, m, d] = dateRaw.split('-');
-            dateFormatted = `${d}.${m}.${y}`;
+            renderDays();
+            calculate();
+            generateExportCode();
+            executeAction();
         }
 
-        let gsmFormula = "-", gsmSum = "-";
-        let zpLabel = "ЗП(-)";
-        let zpFormula = "-", zpSum = "-";
-        let rkoFormula = "-", rkoSum = "-";
+        function executeAction() {
+            if (currentAction === 'excel') generateExcel();
+            else if (currentAction === 'print') generatePrintPage();
+            closeModal();
+        }
 
-        const rows = document.getElementById('resultBody').querySelectorAll('tr');
-        rows.forEach(row => {
-            if (!row.cells[0]) return;
-            if (row.classList.contains('comments-row')) return;
-            const type = row.cells[0].innerText;
-            if (type.includes("ГСМ")) {
-                gsmFormula = row.cells[1].innerText;
-                gsmSum = row.cells[2].innerText;
-            } else if (type.includes("ЗП")) {
-                zpLabel = row.cells[0].innerText;
-                zpFormula = row.cells[1].innerText;
-                zpSum = row.cells[2].innerText;
-            } else if (type.includes("ИТОГО")) {
-                rkoFormula = row.cells[1].innerText;
-                rkoSum = row.cells[2].innerText;
+        function escapeXml(unsafe) {
+            if (typeof unsafe !== 'string') unsafe = String(unsafe);
+            return unsafe.replace(/[<>&'"]/g, function (c) {
+                switch (c) {
+                    case '<': return '&lt;'; case '>': return '&gt;';
+                    case '&': return '&amp;'; case '\'': return '&apos;'; case '"': return '&quot;';
+                }
+            });
+        }
+
+        // ГЕНЕРАЦИЯ СТРАНИЦЫ ДЛЯ ПЕЧАТИ
+        function generatePrintPage() {
+            const name = document.getElementById('courierName').value || "-";
+            const dateRaw = document.getElementById('calcDate').value;
+            let dateFormatted = "-";
+            if (dateRaw) {
+                const [y, m, d] = dateRaw.split('-');
+                dateFormatted = `${d}.${m}.${y}`;
             }
-        });
 
-        let commentsHtml = '';
-        if (currentCommentsString !== "") {
-            commentsHtml = `
+            let gsmFormula = "-", gsmSum = "-";
+            let zpLabel = "ЗП(-)";
+            let zpFormula = "-", zpSum = "-";
+            let rkoFormula = "-", rkoSum = "-";
+
+            const rows = document.getElementById('resultBody').querySelectorAll('tr');
+            rows.forEach(row => {
+                if (!row.cells[0]) return;
+                if (row.classList.contains('comments-row')) return;
+                const type = row.cells[0].innerText;
+                if (type.includes("ГСМ")) {
+                    gsmFormula = row.cells[1].innerText;
+                    gsmSum = row.cells[2].innerText;
+                } else if (type.includes("ЗП")) {
+                    zpLabel = row.cells[0].innerText;
+                    zpFormula = row.cells[1].innerText;
+                    zpSum = row.cells[2].innerText;
+                } else if (type.includes("ИТОГО")) {
+                    rkoFormula = row.cells[1].innerText;
+                    rkoSum = row.cells[2].innerText;
+                }
+            });
+
+            let commentsHtml = '';
+            if (currentCommentsString !== "") {
+                commentsHtml = `
             <tr class="comments-row">
-                <td colspan="3"><strong>Комментарии по выплатам:</strong> ${escapeXml(currentCommentsString)}</td>
+                <td colspan="4"><strong>Прочие выплаты:</strong> ${escapeXml(currentCommentsString)}</td>
             </tr>`;
-        }
+            }
 
-        const htmlContent = `
+            let deliveryRowHtml = '';
+            const hasDelivery = document.getElementById('hasDelivery').checked;
+            if (hasDelivery) {
+                const deliveryText = document.getElementById('deliveryAddresses') ? document.getElementById('deliveryAddresses').value.trim() : "";
+                const deliveryDist = document.getElementById('deliveryDistance') ? document.getElementById('deliveryDistance').value.trim() : "0";
+                deliveryRowHtml = `
+                        <tr>
+                            <td>Развоз персонала</td>
+                            <td colspan="2" class="formula-text">${escapeXml(deliveryText || "-")}</td>
+                            <td class="rounded-val">${escapeXml(deliveryDist || "0")}км</td>
+                        </tr>`;
+            }
+
+            const hasLightbox = document.getElementById('hasLightbox').checked;
+            let lbPrintLabel = "Лайтбокс(-)";
+            let lbPrintNum = "-";
+            let lbPrintTime = "-";
+            let lbPrintSum = "-";
+            if (hasLightbox) {
+                lbPrintLabel = "Лайтбокс";
+                const lbNumVal = document.getElementById('lightboxNumber') ? document.getElementById('lightboxNumber').value.trim() : "";
+                lbPrintNum = lbNumVal || "-";
+                const lbH = parseInt(document.getElementById('lightboxHours').value) || 0;
+                const lbM = parseInt(document.getElementById('lightboxMinutes').value) || 0;
+                lbPrintTime = formatTime(lbH, lbM);
+                const minMoney = lbMinuteRates[lbM] || 0;
+                lbPrintSum = (lbH * 40) + minMoney;
+            }
+
+            const htmlContent = `
         <!DOCTYPE html>
         <html lang="ru">
         <head>
@@ -1079,6 +1225,8 @@
                 .rounded-val { color: #2c3e50; font-weight: bold; }
                 .comments-row td { color: #555; font-size: 0.95em; font-style: italic; background: #fafafa; }
                 .print-btn { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em; margin-bottom: 25px; display: inline-block; }
+                .signatures { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 50px; font-size: 1.1em; }
+                .signature-box { display: flex; align-items: baseline; gap: 5px; }
                 
                 @media print {
                     /* Это правило убирает служебные колонтитулы (URL, время) во всех современных браузерах */
@@ -1103,82 +1251,109 @@
                     <thead>
                         <tr>
                             <th>Тип выплаты</th>
-                            <th>Расчет (формула)</th>
+                            <th colspan="2">Расчет (формула)</th>
                             <th>Сумма (руб)</th>
                         </tr>
                     </thead>
                     <tbody>
+                        ${deliveryRowHtml}
                         <tr>
                             <td>ГСМ</td>
-                            <td class="formula-text">${escapeXml(gsmFormula)}</td>
+                            <td colspan="2" class="formula-text">${escapeXml(gsmFormula)}</td>
                             <td class="rounded-val">${escapeXml(gsmSum)}</td>
                         </tr>
                         <tr>
                             <td>${escapeXml(zpLabel)}</td>
-                            <td class="formula-text">${escapeXml(zpFormula)}</td>
+                            <td colspan="2" class="formula-text">${escapeXml(zpFormula)}</td>
                             <td class="rounded-val">${escapeXml(zpSum)}</td>
+                        </tr>
+                        <tr>
+                            <th>Лайтбокс</th>
+                            <th>Номер</th>
+                            <th>Часы</th>
+                            <th>Сумма</th>
+                        </tr>
+                        <tr>
+                            <td>${escapeXml(lbPrintLabel)}</td>
+                            <td class="formula-text">${escapeXml(lbPrintNum)}</td>
+                            <td class="formula-text">${escapeXml(lbPrintTime)}</td>
+                            <td class="rounded-val">${escapeXml(lbPrintSum)}</td>
                         </tr>
                         <tr class="total-row">
                             <td>ИТОГО в РКО</td>
-                            <td class="formula-text">${escapeXml(rkoFormula)}</td>
+                            <td colspan="2" class="formula-text">${escapeXml(rkoFormula)}</td>
                             <td class="rounded-val">${escapeXml(rkoSum)}</td>
                         </tr>
                         ${commentsHtml}
                     </tbody>
                 </table>
+                <div class="signatures">
+                    <div class="signature-box">
+                        <strong>Администратор:</strong> _________________
+                    </div>
+                    <div class="signature-box">
+                        <strong>Курьер:</strong> _________________
+                    </div>
+                </div>
             </div>
         </body>
         </html>`;
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-    }
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+        }
 
-    // ЭКСПОРТ В EXCEL
-    function generateExcel() {
-        const name = document.getElementById('courierName').value || "-";
-        const baseDist = document.getElementById('baseDistance').value || "0";
-        const hasDelivery = document.getElementById('hasDelivery').checked;
-        const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
-        const addressString = hasDelivery ? getAddressString(addrCount) : "0 адресов";
-        const delDist = hasDelivery ? (document.getElementById('deliveryDistance').value || "0") : "-";
+        // ЭКСПОРТ В EXCEL
+        function generateExcel() {
+            const name = document.getElementById('courierName').value || "-";
+            const baseDist = document.getElementById('baseDistance').value || "0";
+            const hasDelivery = document.getElementById('hasDelivery').checked;
+            const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
+            const addressString = hasDelivery ? getAddressString(addrCount) : "0 адресов";
+            const delDist = hasDelivery ? (document.getElementById('deliveryDistance').value || "0") : "-";
 
-        let gsmFormula = "-", gsmSum = "-";
-        let zpLabel = "ЗП(-)";
-        let zpFormula = "-", zpSum = "-";
-        let rkoFormula = "-", rkoSum = "-";
+            let gsmFormula = "-", gsmSum = "-";
+            let zpLabel = "ЗП(-)";
+            let zpFormula = "-", zpSum = "-";
+            let lbLabel = "Лайтбокс(-)";
+            let lbFormula = "-", lbSum = "-";
+            let rkoFormula = "-", rkoSum = "-";
 
-        const rows = document.getElementById('resultBody').querySelectorAll('tr');
-        rows.forEach(row => {
-            if (!row.cells[0]) return;
-            if (row.classList.contains('comments-row')) return;
-            const type = row.cells[0].innerText;
-            if (type.includes("ГСМ")) {
-                gsmFormula = row.cells[1].innerText;
-                gsmSum = row.cells[2].innerText;
-            } else if (type.includes("ЗП")) {
-                zpLabel = row.cells[0].innerText;
-                zpFormula = row.cells[1].innerText;
-                zpSum = row.cells[2].innerText;
-            } else if (type.includes("ИТОГО")) {
-                rkoFormula = row.cells[1].innerText;
-                rkoSum = row.cells[2].innerText;
-            }
-        });
+            const rows = document.getElementById('resultBody').querySelectorAll('tr');
+            rows.forEach(row => {
+                if (!row.cells[0]) return;
+                if (row.classList.contains('comments-row')) return;
+                const type = row.cells[0].innerText;
+                if (type.includes("ГСМ")) {
+                    gsmFormula = row.cells[1].innerText;
+                    gsmSum = row.cells[2].innerText;
+                } else if (type.includes("ЗП")) {
+                    zpLabel = row.cells[0].innerText;
+                    zpFormula = row.cells[1].innerText;
+                    zpSum = row.cells[2].innerText;
+                } else if (type.includes("Лайтбокс")) {
+                    lbLabel = row.cells[0].innerText;
+                    lbFormula = row.cells[1].innerText;
+                    lbSum = row.cells[2].innerText;
+                } else if (type.includes("ИТОГО")) {
+                    rkoFormula = row.cells[1].innerText;
+                    rkoSum = row.cells[2].innerText;
+                }
+            });
 
-        const uniqueId = document.getElementById('exportCodeText').value;
+            const uniqueId = document.getElementById('exportCodeText').value;
 
-        let commentsXmlRow = '';
-        if (currentCommentsString !== "") {
-            commentsXmlRow = `
+            let commentsXmlRow = '';
+            if (currentCommentsString !== "") {
+                commentsXmlRow = `
             <Row>
                 <Cell><Data ss:Type="String">Комментарии</Data></Cell>
                 <Cell ss:MergeAcross="1"><Data ss:Type="String">${escapeXml(currentCommentsString)}</Data></Cell>
             </Row>`;
-        }
+            }
 
-        const xml = `<?xml version="1.0"?>
+            const xml = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
  <Worksheet ss:Name="Расчет">
@@ -1215,6 +1390,11 @@
     <Cell><Data ss:Type="String">${escapeXml(zpSum)}</Data></Cell>
    </Row>
    <Row>
+    <Cell><Data ss:Type="String">${escapeXml(lbLabel)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(lbFormula)}</Data></Cell>
+    <Cell><Data ss:Type="String">${escapeXml(lbSum)}</Data></Cell>
+   </Row>
+   <Row>
     <Cell><Data ss:Type="String">ИТОГО в РКО</Data></Cell>
     <Cell><Data ss:Type="String">${escapeXml(rkoFormula)}</Data></Cell>
     <Cell><Data ss:Type="String">${escapeXml(rkoSum)}</Data></Cell>
@@ -1228,33 +1408,35 @@
  </Worksheet>
 </Workbook>`;
 
-        const blob = new Blob(["\ufeff", xml], { type: "application/vnd.ms-excel" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `Расчет_${name !== "-" ? name : 'Курьер'}_${new Date().toISOString().slice(0,10)}.xls`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    // Инициализация
-    renderDays();
-    renderBonuses();
-    renderPenalties();
-    calculate();
-
-    let touchStartY = 0;
-    document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
-    document.addEventListener('touchmove', function(e) {
-        if (e.touches[0].clientY - touchStartY > 20) {
-            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
-                document.activeElement.blur();
-            }
+            const blob = new Blob(["\ufeff", xml], { type: "application/vnd.ms-excel" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Расчет_${name !== "-" ? name : 'Курьер'}_${new Date().toISOString().slice(0, 10)}.xls`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
-    }, { passive: true });
-</script>
+
+        // Инициализация
+        initLightboxSelects();
+        renderDays();
+        renderBonuses();
+        renderPenalties();
+        calculate();
+
+        let touchStartY = 0;
+        document.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchmove', function (e) {
+            if (e.touches[0].clientY - touchStartY > 20) {
+                if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+                    document.activeElement.blur();
+                }
+            }
+        }, { passive: true });
+    </script>
 
 </body>
+
 </html>
