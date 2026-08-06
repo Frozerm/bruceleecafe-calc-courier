@@ -598,7 +598,6 @@
         let currentAction = ''; // Хранит тип действия (excel или print)
 
         const minuteRates = { 0: 0, 5: 8, 10: 17, 15: 25, 20: 33, 25: 42, 30: 50, 35: 58, 40: 67, 45: 75, 50: 83, 55: 92 };
-        const lbMinuteRates = { 0: 0, 5: 3, 10: 7, 15: 10, 20: 13, 25: 17, 30: 20, 35: 24, 40: 27, 45: 30, 50: 34, 55: 37 };
 
         function getAddressString(count) {
             if (count === 0) return "0 адресов";
@@ -898,11 +897,11 @@
                 lbLabelUi = lbNum ? `Лайтбокс (№${lbNum})` : "Лайтбокс";
                 const lbHours = parseInt(document.getElementById('lightboxHours').value) || 0;
                 const lbMinutes = parseInt(document.getElementById('lightboxMinutes').value) || 0;
-                const minMoney = lbMinuteRates[lbMinutes] || 0;
-                lbRaw = (lbHours * 40) + minMoney;
+                const totalMinutes = (lbHours * 60) + lbMinutes;
+                lbRaw = totalMinutes * 0.67;
                 lbRounded = Math.round(lbRaw);
                 lbSumUI = lbRounded;
-                lbFormula = `${formatTime(lbHours, lbMinutes)} * 40 = ${lbRounded}`;
+                lbFormula = `${formatTime(lbHours, lbMinutes)} * 0,67 = ${lbRaw.toFixed(1).replace('.', ',')}`;
             }
 
             let bonusTotal = 0; let bonusArr = [];
@@ -1200,9 +1199,10 @@
                 lbPrintNum = lbNumVal || "-";
                 const lbH = parseInt(document.getElementById('lightboxHours').value) || 0;
                 const lbM = parseInt(document.getElementById('lightboxMinutes').value) || 0;
-                lbPrintTime = formatTime(lbH, lbM);
-                const minMoney = lbMinuteRates[lbM] || 0;
-                lbPrintSum = (lbH * 40) + minMoney;
+                const totalMinutes = (lbH * 60) + lbM;
+                const rawSum = totalMinutes * 0.67;
+                lbPrintTime = `${formatTime(lbH, lbM)} * 0,67 = ${rawSum.toFixed(1).replace('.', ',')}`;
+                lbPrintSum = Math.round(rawSum);
             }
 
             const htmlContent = `
@@ -1290,7 +1290,7 @@
                 </table>
                 <div class="signatures">
                     <div class="signature-box">
-                        <strong>Администратор:</strong> _________________
+                        <strong>Администратор:</strong> __________________________________
                     </div>
                     <div class="signature-box">
                         <strong>Курьер:</strong> _________________
