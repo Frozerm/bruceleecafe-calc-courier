@@ -452,12 +452,20 @@
                 </div>
                 <div class="row">
                     <div class="input-group" style="margin-bottom: 0;">
-                        <label>Часы</label>
-                        <select id="lightboxHours" onchange="calculate()"></select>
+                        <label>С (время)</label>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <select id="lbStartH" onchange="calculate()" style="padding:8px;"></select>
+                            <span style="font-weight:bold;">:</span>
+                            <select id="lbStartM" onchange="calculate()" style="padding:8px;"></select>
+                        </div>
                     </div>
                     <div class="input-group" style="margin-bottom: 0;">
-                        <label>Минуты</label>
-                        <select id="lightboxMinutes" onchange="calculate()"></select>
+                        <label>До (время)</label>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <select id="lbEndH" onchange="calculate()" style="padding:8px;"></select>
+                            <span style="font-weight:bold;">:</span>
+                            <select id="lbEndM" onchange="calculate()" style="padding:8px;"></select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -658,17 +666,23 @@
         }
 
         function initLightboxSelects() {
-            const hSelect = document.getElementById('lightboxHours');
-            const mSelect = document.getElementById('lightboxMinutes');
-            if (!hSelect || !mSelect) return;
-            hSelect.innerHTML = '';
-            for (let i = 0; i <= 24; i++) {
-                hSelect.innerHTML += `<option value="${i}" ${i === 1 ? 'selected' : ''}>${i}</option>`;
-            }
-            mSelect.innerHTML = '';
-            for (let i = 0; i <= 55; i += 5) {
-                mSelect.innerHTML += `<option value="${i}" ${i === 30 ? 'selected' : ''}>${i < 10 ? '0' + i : i}</option>`;
-            }
+            const selects = [
+                { h: document.getElementById('lbStartH'), m: document.getElementById('lbStartM'), defH: 11, defM: 0 },
+                { h: document.getElementById('lbEndH'), m: document.getElementById('lbEndM'), defH: 0, defM: 0 }
+            ];
+            selects.forEach(s => {
+                if (!s.h || !s.m) return;
+                s.h.innerHTML = '';
+                for (let i = 0; i <= 23; i++) {
+                    const val = i < 10 ? '0' + i : i;
+                    s.h.innerHTML += `<option value="${val}" ${i === s.defH ? 'selected' : ''}>${val}</option>`;
+                }
+                s.m.innerHTML = '';
+                for (let i = 0; i <= 55; i += 5) {
+                    const val = i < 10 ? '0' + i : i;
+                    s.m.innerHTML += `<option value="${val}" ${i === s.defM ? 'selected' : ''}>${val}</option>`;
+                }
+            });
         }
 
         function addDay() {
@@ -895,13 +909,26 @@
             if (hasLightbox) {
                 const lbNum = document.getElementById('lightboxNumber') ? document.getElementById('lightboxNumber').value.trim() : "";
                 lbLabelUi = lbNum ? `Лайтбокс (№${lbNum})` : "Лайтбокс";
-                const lbHours = parseInt(document.getElementById('lightboxHours').value) || 0;
-                const lbMinutes = parseInt(document.getElementById('lightboxMinutes').value) || 0;
-                const totalMinutes = (lbHours * 60) + lbMinutes;
+                
+                const sh = document.getElementById('lbStartH') ? document.getElementById('lbStartH').value : "11";
+                const sm = document.getElementById('lbStartM') ? document.getElementById('lbStartM').value : "00";
+                const eh = document.getElementById('lbEndH') ? document.getElementById('lbEndH').value : "00";
+                const em = document.getElementById('lbEndM') ? document.getElementById('lbEndM').value : "00";
+                const startStr = `${sh}:${sm}`;
+                const endStr = `${eh}:${em}`;
+                
+                const [startH, startM] = (startStr || "00:00").split(':').map(Number);
+                const [endH, endM] = (endStr || "00:00").split(':').map(Number);
+                
+                let totalMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+                if (totalMinutes < 0) {
+                    totalMinutes += 24 * 60;
+                }
+                
                 lbRaw = totalMinutes * 0.67;
                 lbRounded = Math.round(lbRaw);
                 lbSumUI = lbRounded;
-                lbFormula = `${formatTime(lbHours, lbMinutes)} * 0,67 = ${lbRaw.toFixed(1).replace('.', ',')}`;
+                lbFormula = `(${endStr} - ${startStr}) * 0,67 = ${lbRaw.toFixed(1).replace('.', ',')}`;
             }
 
             let bonusTotal = 0; let bonusArr = [];
@@ -976,8 +1003,8 @@
                 days: zpDays,
                 hasLb: document.getElementById('hasLightbox') ? document.getElementById('hasLightbox').checked : true,
                 lbNum: document.getElementById('lightboxNumber') ? document.getElementById('lightboxNumber').value : '',
-                lbH: document.getElementById('lightboxHours') ? document.getElementById('lightboxHours').value : '1',
-                lbM: document.getElementById('lightboxMinutes') ? document.getElementById('lightboxMinutes').value : '30',
+                lbStart: (document.getElementById('lbStartH') && document.getElementById('lbStartM')) ? `${document.getElementById('lbStartH').value}:${document.getElementById('lbStartM').value}` : '11:00',
+                lbEnd: (document.getElementById('lbEndH') && document.getElementById('lbEndM')) ? `${document.getElementById('lbEndH').value}:${document.getElementById('lbEndM').value}` : '00:00',
                 hasBon: document.getElementById('hasBonus').checked,
                 bon: bonuses,
                 hasPen: document.getElementById('hasPenalty').checked,
@@ -1018,8 +1045,16 @@
                 if (document.getElementById('hasLightbox')) {
                     document.getElementById('hasLightbox').checked = state.hasLb !== undefined ? !!state.hasLb : true;
                     document.getElementById('lightboxNumber').value = state.lbNum || '';
-                    if (document.getElementById('lightboxHours')) document.getElementById('lightboxHours').value = state.lbH !== undefined ? state.lbH : '1';
-                    if (document.getElementById('lightboxMinutes')) document.getElementById('lightboxMinutes').value = state.lbM !== undefined ? state.lbM : '30';
+                    if (document.getElementById('lbStartH') && document.getElementById('lbStartM')) {
+                        const [h, m] = (state.lbStart || '11:00').split(':');
+                        document.getElementById('lbStartH').value = h || '11';
+                        document.getElementById('lbStartM').value = m || '00';
+                    }
+                    if (document.getElementById('lbEndH') && document.getElementById('lbEndM')) {
+                        const [h, m] = (state.lbEnd || '00:00').split(':');
+                        document.getElementById('lbEndH').value = h || '00';
+                        document.getElementById('lbEndM').value = m || '00';
+                    }
                     toggleLightbox();
                 }
                 renderDays();
@@ -1197,11 +1232,22 @@
                 lbPrintLabel = "Лайтбокс";
                 const lbNumVal = document.getElementById('lightboxNumber') ? document.getElementById('lightboxNumber').value.trim() : "";
                 lbPrintNum = lbNumVal || "-";
-                const lbH = parseInt(document.getElementById('lightboxHours').value) || 0;
-                const lbM = parseInt(document.getElementById('lightboxMinutes').value) || 0;
-                const totalMinutes = (lbH * 60) + lbM;
+                const sh = document.getElementById('lbStartH') ? document.getElementById('lbStartH').value : "11";
+                const sm = document.getElementById('lbStartM') ? document.getElementById('lbStartM').value : "00";
+                const eh = document.getElementById('lbEndH') ? document.getElementById('lbEndH').value : "00";
+                const em = document.getElementById('lbEndM') ? document.getElementById('lbEndM').value : "00";
+                const startStr = `${sh}:${sm}`;
+                const endStr = `${eh}:${em}`;
+                const [startH, startM] = (startStr || "00:00").split(':').map(Number);
+                const [endH, endM] = (endStr || "00:00").split(':').map(Number);
+                
+                let totalMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+                if (totalMinutes < 0) {
+                    totalMinutes += 24 * 60;
+                }
+                
                 const rawSum = totalMinutes * 0.67;
-                lbPrintTime = `${formatTime(lbH, lbM)} * 0,67 = ${rawSum.toFixed(1).replace('.', ',')}`;
+                lbPrintTime = `(${endStr} - ${startStr}) * 0,67 = ${rawSum.toFixed(1).replace('.', ',')}`;
                 lbPrintSum = Math.round(rawSum);
             }
 
