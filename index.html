@@ -419,6 +419,32 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- НОВЫЙ БЛОК: Последние заказы -->
+            <label class="toggle-group" style="margin-top: 15px;">
+                <input type="checkbox" id="hasLastOrders" onchange="toggleLastOrders()"> Был(и) последний(е) заказ(ы)?
+            </label>
+
+            <div id="lastOrdersFields" style="display: none; flex-direction: column; gap: 15px;">
+                <div class="input-group" style="width: 100%; margin-bottom: 0;">
+                    <label>Адреса последних заказов</label>
+                    <input type="text" id="lastOrdersAddresses" placeholder="Например: ул. Пушкина 10..."
+                        oninput="calculate()">
+                </div>
+                <div class="row" style="width: 100%;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Путь заказов (км)</label>
+                        <input type="number" id="lastOrdersDistance" value="10.50" step="0.01" inputmode="decimal"
+                            oninput="calculate()">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <label>Количество адресов</label>
+                        <input type="number" id="lastOrdersAddressCount" value="2" inputmode="numeric" pattern="[0-9]*"
+                            oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+            
         </div>
 
         <div class="section">
@@ -603,7 +629,7 @@
         let zpDays = [{ id: 1, date: '', hours: 10, minutes: 0, orders: 9 }, { id: 2, date: '', hours: 13, minutes: 30, orders: 11 }];
         let bonuses = [{ id: 1, val: 0, comment: '' }];
         let penalties = [{ id: 1, val: 0, comment: '' }];
-        let currentAction = ''; // Хранит тип действия (excel или print)
+        let currentAction = ''; 
 
         const minuteRates = { 0: 0, 5: 8, 10: 17, 15: 25, 20: 33, 25: 42, 30: 50, 35: 58, 40: 67, 45: 75, 50: 83, 55: 92 };
 
@@ -642,6 +668,11 @@
 
         function toggleDelivery() {
             document.getElementById('deliveryFields').style.display = document.getElementById('hasDelivery').checked ? 'flex' : 'none';
+            calculate();
+        }
+
+        function toggleLastOrders() {
+            document.getElementById('lastOrdersFields').style.display = document.getElementById('hasLastOrders').checked ? 'flex' : 'none';
             calculate();
         }
 
@@ -839,19 +870,31 @@
                 infoDisplay.style.display = 'none';
             }
 
+            // ГСМ
             const baseDist = parseFloat(document.getElementById('baseDistance').value) || 0;
             const hasDelivery = document.getElementById('hasDelivery').checked;
             const delDist = hasDelivery ? (parseFloat(document.getElementById('deliveryDistance').value) || 0) : 0;
             const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
+
+            const hasLastOrders = document.getElementById('hasLastOrders').checked;
+            const lastDist = hasLastOrders ? (parseFloat(document.getElementById('lastOrdersDistance').value) || 0) : 0;
+            const lastAddrCount = hasLastOrders ? (parseInt(document.getElementById('lastOrdersAddressCount').value) || 0) : 0;
+
             const hasSalary = document.getElementById('hasSalary').checked;
             const hasBonus = document.getElementById('hasBonus').checked;
             const hasPenalty = document.getElementById('hasPenalty').checked;
 
-            const gsmRaw = (baseDist + delDist) * gsmRate;
+            const totalDist = baseDist + delDist + lastDist;
+            const gsmRaw = totalDist * gsmRate;
             const gsmRounded = Math.round(gsmRaw);
-            const gsmFormula = hasDelivery ?
-                `(${baseDist.toString().replace('.', ',')} + ${delDist.toString().replace('.', ',')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
-                `${baseDist.toString().replace('.', ',')} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
+
+            let distTerms = [baseDist.toString().replace('.', ',')];
+            if (hasDelivery) distTerms.push(delDist.toString().replace('.', ','));
+            if (hasLastOrders) distTerms.push(lastDist.toString().replace('.', ','));
+
+            const gsmFormula = distTerms.length > 1 ?
+                `(${distTerms.join(' + ')}) * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}` :
+                `${distTerms[0]} * ${gsmRate.toString().replace('.', ',')} = ${gsmRaw.toFixed(1).replace('.', ',')}`;
 
             let zpRaw = 0; let zpRounded = 0;
             let zpFormula = "-";
@@ -961,14 +1004,15 @@
 
             currentCommentsString = commentsArr.join(', ');
 
-            const addrMoney = addrCount * 120;
+            const totalAddrCount = addrCount + lastAddrCount;
+            const addrMoney = totalAddrCount * 120;
             const baseRko = gsmRounded + zpRounded + lbRounded + addrMoney;
             const finalRko = baseRko + bonusTotal - penaltyTotal;
 
             let rkoFormula = `${gsmRounded}`;
             if (hasSalary) rkoFormula += ` + ${zpRounded}`;
             if (hasLightbox) rkoFormula += ` + ${lbRounded}`;
-            if (hasDelivery) rkoFormula += ` + (${addrCount} * 120)`;
+            if (totalAddrCount > 0) rkoFormula += ` + (${totalAddrCount} * 120)`;
 
             if (bonusArr.length > 0 || penaltyArr.length > 0) {
                 rkoFormula += ` = ${baseRko}`;
@@ -999,6 +1043,12 @@
                 delAddr: document.getElementById('deliveryAddresses') ? document.getElementById('deliveryAddresses').value : '',
                 delDist: document.getElementById('deliveryDistance').value,
                 addr: document.getElementById('addressCount').value,
+                
+                hasLO: document.getElementById('hasLastOrders') ? document.getElementById('hasLastOrders').checked : false,
+                loAddr: document.getElementById('lastOrdersAddresses') ? document.getElementById('lastOrdersAddresses').value : '',
+                loDist: document.getElementById('lastOrdersDistance') ? document.getElementById('lastOrdersDistance').value : '',
+                loCount: document.getElementById('lastOrdersAddressCount') ? document.getElementById('lastOrdersAddressCount').value : '',
+
                 hasSal: document.getElementById('hasSalary').checked,
                 days: zpDays,
                 hasLb: document.getElementById('hasLightbox') ? document.getElementById('hasLightbox').checked : true,
@@ -1039,6 +1089,17 @@
                 document.getElementById('deliveryDistance').value = state.delDist || '';
                 document.getElementById('addressCount').value = state.addr || '';
                 toggleDelivery();
+                
+                if (document.getElementById('hasLastOrders')) {
+                    document.getElementById('hasLastOrders').checked = !!state.hasLO;
+                    if (document.getElementById('lastOrdersAddresses')) {
+                        document.getElementById('lastOrdersAddresses').value = state.loAddr || '';
+                    }
+                    document.getElementById('lastOrdersDistance').value = state.loDist || '';
+                    document.getElementById('lastOrdersAddressCount').value = state.loCount || '';
+                    toggleLastOrders();
+                }
+
                 document.getElementById('hasSalary').checked = !!state.hasSal;
                 zpDays = state.days && state.days.length > 0 ? state.days : [{ id: 1, date: '', hours: 0, minutes: 0, orders: 0 }];
                 toggleSalary();
@@ -1222,6 +1283,19 @@
                             <td class="rounded-val">${escapeXml(deliveryDist || "0")}км</td>
                         </tr>`;
             }
+            
+            let lastOrdersRowHtml = '';
+            const hasLastOrders = document.getElementById('hasLastOrders').checked;
+            if (hasLastOrders) {
+                const loText = document.getElementById('lastOrdersAddresses') ? document.getElementById('lastOrdersAddresses').value.trim() : "";
+                const loDist = document.getElementById('lastOrdersDistance') ? document.getElementById('lastOrdersDistance').value.trim() : "0";
+                lastOrdersRowHtml = `
+                        <tr>
+                            <td>Последние заказы</td>
+                            <td colspan="2" class="formula-text">${escapeXml(loText || "-")}</td>
+                            <td class="rounded-val">${escapeXml(loDist || "0")}км</td>
+                        </tr>`;
+            }
 
             const hasLightbox = document.getElementById('hasLightbox').checked;
             let lbPrintLabel = "Лайтбокс(-)";
@@ -1276,7 +1350,6 @@
                 .signature-box { display: flex; align-items: baseline; gap: 5px; }
                 
                 @media print {
-                    /* Это правило убирает служебные колонтитулы (URL, время) во всех современных браузерах */
                     @page { margin: 0; }
                     body { margin: 1.5cm; }
                     .print-btn { display: none !important; }
@@ -1304,6 +1377,7 @@
                     </thead>
                     <tbody>
                         ${deliveryRowHtml}
+                        ${lastOrdersRowHtml}
                         <tr>
                             <td>ГСМ</td>
                             <td colspan="2" class="formula-text">${escapeXml(gsmFormula)}</td>
@@ -1355,10 +1429,16 @@
         function generateExcel() {
             const name = document.getElementById('courierName').value || "-";
             const baseDist = document.getElementById('baseDistance').value || "0";
+            
             const hasDelivery = document.getElementById('hasDelivery').checked;
             const addrCount = hasDelivery ? (parseInt(document.getElementById('addressCount').value) || 0) : 0;
             const addressString = hasDelivery ? getAddressString(addrCount) : "0 адресов";
             const delDist = hasDelivery ? (document.getElementById('deliveryDistance').value || "0") : "-";
+
+            const hasLastOrders = document.getElementById('hasLastOrders').checked;
+            const loCount = hasLastOrders ? (parseInt(document.getElementById('lastOrdersAddressCount').value) || 0) : 0;
+            const loAddrString = hasLastOrders ? getAddressString(loCount) : "0 адресов";
+            const loDist = hasLastOrders ? (document.getElementById('lastOrdersDistance').value || "0") : "-";
 
             let gsmFormula = "-", gsmSum = "-";
             let zpLabel = "ЗП(-)";
@@ -1399,6 +1479,16 @@
                 <Cell ss:MergeAcross="1"><Data ss:Type="String">${escapeXml(currentCommentsString)}</Data></Cell>
             </Row>`;
             }
+            
+            let loXmlRow = '';
+            if (hasLastOrders) {
+                loXmlRow = `
+               <Row>
+                <Cell><Data ss:Type="String">Последние заказы (км)</Data></Cell>
+                <Cell><Data ss:Type="String">${escapeXml(loAddrString)}</Data></Cell>
+                <Cell><Data ss:Type="String">${escapeXml(loDist)}</Data></Cell>
+               </Row>`;
+            }
 
             const xml = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
@@ -1421,6 +1511,7 @@
     <Cell><Data ss:Type="String">${escapeXml(addressString)}</Data></Cell>
     <Cell><Data ss:Type="String">${escapeXml(delDist)}</Data></Cell>
    </Row>
+   ${loXmlRow}
    <Row>
     <Cell></Cell>
     <Cell><Data ss:Type="String">Расчёт</Data></Cell>
