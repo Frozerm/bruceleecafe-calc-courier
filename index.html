@@ -931,7 +931,7 @@
 
                 const minutesMoney = minuteRates[totalMinutesForPay] || 0;
                 const timeMoney = (totalHoursForPay * 100) + minutesMoney;
-                const orderMoney = totalOrders * 120;
+                const orderMoney = totalOrders * 130;
 
                 zpRaw = timeMoney + orderMoney;
                 zpRounded = Math.round(zpRaw);
@@ -939,7 +939,7 @@
 
                 const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
                 const orderStr = orderParts.length > 1 ? `(${orderParts.join(' + ')})` : orderParts[0];
-                zpFormula = `(${timeStr} * 100) + (${orderStr} * 120) = ${zpRounded}`;
+                zpFormula = `(${timeStr} * 100) + (${orderStr} * 130) = ${zpRounded}`;
             }
 
             const hasLightbox = document.getElementById('hasLightbox').checked;
@@ -968,7 +968,7 @@
                     totalMinutes += 24 * 60;
                 }
                 
-                lbRaw = totalMinutes * 0.67;
+                lbRaw = totalMinutes * 0.83;
                 lbRounded = Math.round(lbRaw);
                 lbSumUI = lbRounded;
                 lbFormula = `(${endStr} - ${startStr}) * 0,67 = ${lbRaw.toFixed(1).replace('.', ',')}`;
@@ -1005,14 +1005,14 @@
             currentCommentsString = commentsArr.join(', ');
 
             const totalAddrCount = addrCount + lastAddrCount;
-            const addrMoney = totalAddrCount * 120;
+            const addrMoney = totalAddrCount * 130;
             const baseRko = gsmRounded + zpRounded + lbRounded + addrMoney;
             const finalRko = baseRko + bonusTotal - penaltyTotal;
 
             let rkoFormula = `${gsmRounded}`;
             if (hasSalary) rkoFormula += ` + ${zpRounded}`;
             if (hasLightbox) rkoFormula += ` + ${lbRounded}`;
-            if (totalAddrCount > 0) rkoFormula += ` + (${totalAddrCount} * 120)`;
+            if (totalAddrCount > 0) rkoFormula += ` + (${totalAddrCount} * 130)`;
 
             if (bonusArr.length > 0 || penaltyArr.length > 0) {
                 rkoFormula += ` = ${baseRko}`;
@@ -1320,7 +1320,7 @@
                     totalMinutes += 24 * 60;
                 }
                 
-                const rawSum = totalMinutes * 0.67;
+                const rawSum = totalMinutes * 0.83;
                 lbPrintTime = `(${endStr} - ${startStr}) * 0,67 = ${rawSum.toFixed(1).replace('.', ',')}`;
                 lbPrintSum = Math.round(rawSum);
             }
@@ -1497,7 +1497,7 @@
   <Table>
    <Column ss:Width="200"/>
    <Column ss:Width="300"/>
-   <Column ss:Width="120"/>
+   <Column ss:Width="130"/>
    <Row>
     <Cell><Data ss:Type="String">Курьер</Data></Cell>
     <Cell><Data ss:Type="String">${escapeXml(name)}</Data></Cell>
