@@ -169,28 +169,6 @@
             cursor: pointer;
         }
 
-        .gsm-rate-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        .gsm-rate-input-wrapper label {
-            font-weight: bold;
-            font-size: 1em;
-            color: var(--text-color);
-            margin-bottom: 0;
-        }
-
-        .gsm-rate-input-wrapper input {
-            width: 100px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
         .day-card {
             border: 1px solid var(--border-color);
             padding: 15px;
@@ -382,10 +360,27 @@
             </div>
         </div>
 
-        <div class="gsm-rate-input-wrapper">
-            <label for="gsmRateInput">Ставка ГСМ:</label>
-            <input type="number" id="gsmRateInput" value="6.72" step="0.01" min="0" inputmode="decimal"
-                oninput="updateGsmRateFromInput()">
+        <!-- НОВЫЙ БЛОК: Настройки ставок -->
+        <div class="section">
+            <div class="section-title">Настройки ставок</div>
+            <div class="row">
+                <div class="input-group">
+                    <label>ГСМ (за 1 км)</label>
+                    <input type="number" id="gsmRateInput" value="6.72" step="0.01" min="0" inputmode="decimal" oninput="updateRates()">
+                </div>
+                <div class="input-group">
+                    <label>ЗП (в час)</label>
+                    <input type="number" id="hourlyRateInput" value="100" step="1" min="0" inputmode="numeric" oninput="updateRates()">
+                </div>
+                <div class="input-group">
+                    <label>ЗП (за заказ)</label>
+                    <input type="number" id="orderRateInput" value="130" step="1" min="0" inputmode="numeric" oninput="updateRates()">
+                </div>
+                <div class="input-group">
+                    <label>Развоз (за адрес)</label>
+                    <input type="number" id="deliveryRateInput" value="130" step="1" min="0" inputmode="numeric" oninput="updateRates()">
+                </div>
+            </div>
         </div>
 
         <div class="section">
@@ -420,7 +415,6 @@
                 </div>
             </div>
             
-            <!-- НОВЫЙ БЛОК: Последние заказы -->
             <label class="toggle-group" style="margin-top: 15px;">
                 <input type="checkbox" id="hasLastOrders" onchange="toggleLastOrders()"> Был(и) последний(е) заказ(ы)?
             </label>
@@ -626,12 +620,14 @@
 
         // ПЕРЕМЕННЫЕ
         let gsmRate = 6.72;
+        let hourlyRate = 100;
+        let orderRate = 130;
+        let deliveryRate = 130;
+
         let zpDays = [{ id: 1, date: '', hours: 10, minutes: 0, orders: 9 }, { id: 2, date: '', hours: 13, minutes: 30, orders: 11 }];
         let bonuses = [{ id: 1, val: 0, comment: '' }];
         let penalties = [{ id: 1, val: 0, comment: '' }];
         let currentAction = ''; 
-
-        const minuteRates = { 0: 0, 5: 8, 10: 17, 15: 25, 20: 33, 25: 42, 30: 50, 35: 58, 40: 67, 45: 75, 50: 83, 55: 92 };
 
         function getAddressString(count) {
             if (count === 0) return "0 адресов";
@@ -652,17 +648,20 @@
             document.getElementById('exportCodeText').value = '';
         }
 
-        function setGsmRate(rate) {
-            gsmRate = rate;
-            document.getElementById('gsmRateInput').value = rate;
-            calculate();
-        }
+        // ОБНОВЛЕНИЕ СТАВОК
+        function updateRates() {
+            const gsmVal = parseFloat(document.getElementById('gsmRateInput').value);
+            if (!isNaN(gsmVal) && gsmVal >= 0) gsmRate = gsmVal;
 
-        function updateGsmRateFromInput() {
-            const val = parseFloat(document.getElementById('gsmRateInput').value);
-            if (!isNaN(val) && val >= 0) {
-                gsmRate = val;
-            }
+            const hourlyVal = parseFloat(document.getElementById('hourlyRateInput').value);
+            if (!isNaN(hourlyVal) && hourlyVal >= 0) hourlyRate = hourlyVal;
+
+            const orderVal = parseFloat(document.getElementById('orderRateInput').value);
+            if (!isNaN(orderVal) && orderVal >= 0) orderRate = orderVal;
+
+            const deliveryVal = parseFloat(document.getElementById('deliveryRateInput').value);
+            if (!isNaN(deliveryVal) && deliveryVal >= 0) deliveryRate = deliveryVal;
+
             calculate();
         }
 
@@ -929,9 +928,9 @@
                 totalHoursForPay += Math.floor(totalMinutesForPay / 60);
                 totalMinutesForPay = totalMinutesForPay % 60;
 
-                const minutesMoney = minuteRates[totalMinutesForPay] || 0;
-                const timeMoney = (totalHoursForPay * 100) + minutesMoney;
-                const orderMoney = totalOrders * 130;
+                const minutesMoney = (totalMinutesForPay / 60) * hourlyRate;
+                const timeMoney = (totalHoursForPay * hourlyRate) + minutesMoney;
+                const orderMoney = totalOrders * orderRate;
 
                 zpRaw = timeMoney + orderMoney;
                 zpRounded = Math.round(zpRaw);
@@ -939,7 +938,7 @@
 
                 const timeStr = timeParts.length > 1 ? `(${timeParts.join(' + ')})` : timeParts[0];
                 const orderStr = orderParts.length > 1 ? `(${orderParts.join(' + ')})` : orderParts[0];
-                zpFormula = `(${timeStr} * 100) + (${orderStr} * 130) = ${zpRounded}`;
+                zpFormula = `(${timeStr} * ${hourlyRate}) + (${orderStr} * ${orderRate}) = ${zpRounded}`;
             }
 
             const hasLightbox = document.getElementById('hasLightbox').checked;
@@ -1005,14 +1004,14 @@
             currentCommentsString = commentsArr.join(', ');
 
             const totalAddrCount = addrCount + lastAddrCount;
-            const addrMoney = totalAddrCount * 130;
+            const addrMoney = totalAddrCount * deliveryRate;
             const baseRko = gsmRounded + zpRounded + lbRounded + addrMoney;
             const finalRko = baseRko + bonusTotal - penaltyTotal;
 
             let rkoFormula = `${gsmRounded}`;
             if (hasSalary) rkoFormula += ` + ${zpRounded}`;
             if (hasLightbox) rkoFormula += ` + ${lbRounded}`;
-            if (totalAddrCount > 0) rkoFormula += ` + (${totalAddrCount} * 130)`;
+            if (totalAddrCount > 0) rkoFormula += ` + (${totalAddrCount} * ${deliveryRate})`;
 
             if (bonusArr.length > 0 || penaltyArr.length > 0) {
                 rkoFormula += ` = ${baseRko}`;
@@ -1038,6 +1037,9 @@
                 name: document.getElementById('courierName').value,
                 date: document.getElementById('calcDate').value,
                 gsm: gsmRate,
+                hourlyRate: hourlyRate,
+                orderRate: orderRate,
+                deliveryRate: deliveryRate,
                 dist: document.getElementById('baseDistance').value,
                 hasDel: document.getElementById('hasDelivery').checked,
                 delAddr: document.getElementById('deliveryAddresses') ? document.getElementById('deliveryAddresses').value : '',
@@ -1080,7 +1082,12 @@
                 const state = JSON.parse(decodeURIComponent(atob(code)));
                 document.getElementById('courierName').value = state.name || '';
                 document.getElementById('calcDate').value = state.date || '';
-                setGsmRate(state.gsm || 6.72);
+                
+                document.getElementById('gsmRateInput').value = state.gsm !== undefined ? state.gsm : 6.72;
+                document.getElementById('hourlyRateInput').value = state.hourlyRate !== undefined ? state.hourlyRate : 100;
+                document.getElementById('orderRateInput').value = state.orderRate !== undefined ? state.orderRate : 130;
+                document.getElementById('deliveryRateInput').value = state.deliveryRate !== undefined ? state.deliveryRate : 130;
+                
                 document.getElementById('baseDistance').value = state.dist || '';
                 document.getElementById('hasDelivery').checked = !!state.hasDel;
                 if (document.getElementById('deliveryAddresses')) {
@@ -1127,7 +1134,10 @@
                 penalties = state.pen && state.pen.length > 0 ? state.pen : [{ id: 1, val: 0, comment: '' }];
                 togglePenalty();
                 renderPenalties();
-                calculate();
+                
+                // Применяем все загруженные ставки и пересчитываем
+                updateRates(); 
+                
                 alert('Расчеты успешно загружены!');
                 document.getElementById('importCodeText').value = '';
                 toggleImportMenu();
